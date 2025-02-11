@@ -24,6 +24,15 @@ Next Steps
 - Use the following to draw.
   let svg = d3.select('svg');
   let legend = d3.select('.legend');
+  {
+    allData:
+    sex:
+    department:
+    diseases:
+    filteredData: (use this to draw)
+    x_label:
+    y_label:
+  }
 
 Next Meeting: February 14th, Friday at 4:00PM. Tasks are delegated as follows:
 Hargen: Convert clustering plot into a function (enable choose of x-y axes.

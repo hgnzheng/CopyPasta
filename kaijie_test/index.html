@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>VitalDB Grapher (Dept & Disease Linkage)</title>
+  <!-- 引入 CSS -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>VitalDB Grapher — Departments & Diseases in Sync</h1>
+  </header>
+
+  <div class="container">
+    <!-- 1) 上方控制区：Department Checkbox + Disease 搜索/下拉 + X属性选择 -->
+    <div class="controls">
+      <!-- Dept checkboxes -->
+      <div class="dept-container" id="deptChecks">
+        <!-- 这里动态插入checkbox: (Select All), General, Thoracic, ... -->
+      </div>
+
+      <!-- Disease 搜索 & 下拉 -->
+      <div>
+        <div style="margin-bottom:4px;">
+          <label for="dxSearch">Search Disease:</label>
+          <input type="text" id="dxSearch" placeholder="Enter Key Work to Filter dx">
+        </div>
+        <div>
+          <label for="dxSelect">Disease (dx):</label>
+          <select id="dxSelect"></select>
+        </div>
+      </div>
+
+      <!-- X 属性下拉 -->
+      <div>
+        <label for="attrSelect">X Attribute:</label>
+        <select id="attrSelect">
+          <option value="sex">sex</option>
+          <option value="age">age</option>
+          <option value="height">height</option>
+          <option value="weight">weight</option>
+          <option value="bmi" selected>bmi</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- 2) 堆叠面积图 -->
+    <div class="chart-container">
+      <div id="tooltip" class="tooltip"></div>
+      <svg id="chart" width="900" height="500"></svg>
+    </div>
+
+    <!-- 3) 饼图 + 右侧信息文字 -->
+    <div class="chart-container" style="display:flex; align-items:center;">
+      <div style="position:relative;">
+        <div id="pieTooltip" class="tooltip"></div>
+        <svg id="pieChart" width="700" height="400"></svg>
+      </div>
+      <div id="pieInfo"></div>
+    </div>
+  </div>
+
+  <!-- 引入 D3 -->
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <!-- 引入主脚本 -->
+  <script src="script.js"></script>
+</body>
+</html>

@@ -1,5 +1,5 @@
-# interactive_visualization_dsc106
-Project 2 for DSC 106.
+# CopyPasta
+Project 3: Interactive Visualization for DSC 106.
 
 Ideas:
 1. Search for disease names and filter the criteria by some basic metrics such as height, weight, etc.

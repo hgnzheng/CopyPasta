@@ -11,8 +11,21 @@ Ideas:
 - Could add a slice bar to filter for different values of metrics.
 - Could relate to death rate for a interactive visualization of how death rate changes according to different filters.
 
-* Before February 10th at 9:00PM
+Before February 10th at 9:00PM (DONE!)
 - Youze: Plot 2 visualizations for Idea 2.
 - Rihui: Basic website building.
 - Minghan: Plot 2 visualizations for Idea 2.
 - Kaijie: Plot 2 visualizations for Idea 1.
+
+
+Next Steps
+- Data preprocessing to remove duplicates, group similar diseases together, etc.
+- Convert {Death rate, Count distribution, Disease clustering on height/weights} interactive visualizations with legend in terms of functions.
+- Use the following to draw.
+  let svg = d3.select('svg');
+  let legend = d3.select('.legend');
+
+Next Meeting: February 14th, Friday at 4:00PM. Tasks are delegated as follows:
+Hargen: Convert clustering plot into a function (enable choose of x-y axes.
+Rihui, Kaijie: Work on front-end code.
+Minghan: Data preprocessing.

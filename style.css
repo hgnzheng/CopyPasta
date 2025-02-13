@@ -1,3 +1,7 @@
+:root {
+    --color-accent: oklch(60% 15% 225); 
+}
+
 body {
     font: 100%/1.5 system-ui;
     max-width: 100ch;
@@ -32,54 +36,126 @@ h1 {
     text-align: center;
 }
 
+.filter-diseases {
+    position: relative;
+    display: block;
+    font-family: inherit;
+    width: 100%;
+    margin-bottom: 18px;
+}
+  
+.filter-diseases button {
+    padding: 12px;
+    background-color: light-dark(#f2f2f2, #0f0f0f);
+    border: 1px solid light-dark(#ddd, #202020);
+    border-radius: 8px; 
+    box-shadow: 0 4px 6px light-dark(rgba(0, 0, 0, 0.1), rgba(255, 255, 255, 0.1));
+    cursor: pointer;
+    width: 100%;
+    font-size: inherit;
+}
+  
+.dropdown-menu {
+    position: absolute;
+    width: 100%;
+    background: light-dark(#fff, #101010);
+    border: 1px solid light-dark(#ddd, #202020);
+    border-top: none;
+    box-shadow: 0 4px 6px light-dark(rgba(0, 0, 0, 0.1), rgba(255, 255, 255, 0.1));
+}
+
+.search-container {
+    padding: 6px 8px;
+    padding-top: 12px;      
+    border: 1px solid light-dark(#ddd, #202020);
+    box-sizing: border-box;
+    width: 100%;              
+}
+  
+.search-container input {
+    display: block;
+    width: 100%;
+    border: 1px solid light-dark(#aaa, #202020);
+    border-radius: 4px; 
+    outline: none;
+    box-sizing: border-box;
+    padding: .375rem .75rem;
+    font-size: inherit;
+}
+  
+.dropdown-menu ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    max-height: 300px;
+    overflow-y: auto;
+}
+  
+.dropdown-menu ul li {
+    padding: 8px 10px;
+    cursor: pointer;
+    border: 1px solid light-dark(#ddd, #303030);
+    font-size: inherit;
+}
+  
+.dropdown-menu ul li:hover {
+    background-color: light-dark(#f9f9f9, #202020);
+}
+
 .canvas {
-    display: flex;
-    gap: 20px;
-    align-items: flex-start;
     padding: 1em;
     border: 1px solid light-dark(#ddd, #202020);
     border-radius: 8px; 
     box-shadow: 0 4px 6px light-dark(rgba(0, 0, 0, 0.1), rgba(255, 255, 255, 0.1));
 }
 
-
-
-.select-filter {
-    font-family: inherit;
-    padding: 0.5em;
-    border-radius: 0.5rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    display: grid;
-    grid-template-columns: subgrid;
-}
-
-.select-filter {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    align-items: left;
-}
-
-.select-filter select {
-    font-family: inherit; 
-    border: 1px solid gray;
-    border-radius: 0.25rem;
-    padding: 0.1rem;
-}
-
-.graph {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-}
-
 .filter {
-    width: 100%;
-    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
 }
 
+.filter button {
+    padding: 6px 8px;
+    background-color: light-dark(#f2f2f2, #404040);
+    border: 1px solid light-dark(#ddd, #202020);
+    border-radius: 8px; 
+    box-shadow: 0 4px 6px light-dark(rgba(0, 0, 0, 0.1), rgba(255, 255, 255, 0.1));
+    cursor: pointer;
+}
+  
+.filter-attr,
+.filter-kind {
+    display: flex;
+    justify-content: space-between;
+    /* align-items: center; */
+    width: 90;
+}
+
+.filter-attr div,
+.filter-kind div{
+    display: flex;
+    gap: 6px;
+    padding: 0;
+}
+
+.filter-axis select{
+    padding: 4px;
+    border: 1px solid light-dark(#ddd, #202020);
+    border-radius: 4px; 
+    box-shadow: 0 4px 6px light-dark(rgba(0, 0, 0, 0.1), rgba(255, 255, 255, 0.1));
+    cursor: pointer;
+}
+
+.filter-department button.selected,
+.filter-sex button.selected,
+.filter-plotkind button.selected {
+  background-color: light-dark(oklch(from var(--color-accent) 80% 5% h), color-mix(in oklch, var(--color-accent), canvas 5%));
+  transition: background-color 0.3s, color 0.3s;
+  box-shadow: 0 0px 0px;
+    /* cursor: pointer; */
+}
+  
 .plot {
     display: flex;
     align-items: start;

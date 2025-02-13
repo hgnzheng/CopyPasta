@@ -65,7 +65,7 @@ function loadData(){
         });
         plot_info.allData = data;
 
-        other_info.diseasesList = Array.from(new Set(data.map(d => d.diseases))).sort();
+        other_info.diseasesList = Array.from(new Set(data.map(d => d.dx))).sort();
         other_info.departmentList = Array.from(new Set(data.map(d => d.department))).sort();
         other_info.sexList = Array.from(new Set(data.map(d => d.sex))).sort();
 
@@ -91,7 +91,11 @@ function filterDiseases(all_info) {
         .attr("class", "dropdown-menu")
         .style("display", "none");
 
-    menu.append("input")
+    let searchContainer = menu.append("div")
+    .attr("class", "search-container");
+      
+      // 在包装容器内添加搜索输入框
+      searchContainer.append("input")
         .attr("type", "text")
         .attr("placeholder", "Search...")
         .on("input", function() {
@@ -99,14 +103,14 @@ function filterDiseases(all_info) {
             menu.selectAll("ul li")
                 .style("display", function() {
                     let txt = d3.select(this).text().toLowerCase();
-                    return txt.indexOf(searchText) >= 0 ? "block" : "none"; // TODO start with or have
+                    return txt.indexOf(searchText) >= 0 ? "block" : "none";
                 });
         });
 
     let ul = menu.append("ul");
 
     ul.append("li")
-        .text("")
+        .text("Select Diseases")
         .on("click", function() {
             button.text("Select Diseases");
             all_info.plot_info.disease = "";
@@ -173,7 +177,10 @@ function filterDepartment(all_info){
                 
                 draw(all_info.plot_info);
             });
-        });
+    });
+
+    container.selectAll("button.department").classed("selected", true);
+    all_info.plot_info.department = all_info.other_info.departmentList.slice();
 }
 
 function filterSex(all_info) {
@@ -206,7 +213,7 @@ function filterSex(all_info) {
                 btn.classed("selected", !wasSelected);
 
                 let selectedSexes = [];
-                container.selectAll("button.sex").each(function() {
+                container.selectAll("button.sex:not(.all)").each(function() {
                     if (d3.select(this).classed("selected")) {
                         selectedSexes.push(d3.select(this).datum());
                     }
@@ -224,6 +231,9 @@ function filterSex(all_info) {
                 draw(all_info.plot_info);
             });
     });
+
+    container.selectAll("button.sex").classed("selected", true);
+    all_info.plot_info.sex = all_info.other_info.sexList.slice();
 }
 
 function filterPlotKind(all_info) {
@@ -292,6 +302,12 @@ function filterAxis(all_info) {
 
 
 function draw(plot_info){
+    let filtered = filterData(plot_info)
+    return
+}
+
+
+function filterData(plot_info) {
     return
 }
 

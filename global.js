@@ -2,7 +2,8 @@ import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7.9.0/+esm";
 
 const dataPath = "data/data.csv"
 const axisList = ["age", "height", "weight", "bmi"]
-const plotKindList = ["Type A", "Type B", "Type C"]
+const plotKindList = ["distribution", "piPlot", "scatterPlot"]
+const plotKindValueList = ["distribution", "piPlot", "scatterPlot"]
 
 
 function title(s) {
@@ -35,24 +36,32 @@ select.addEventListener('input', function (event) {
 function loadData(){
     let plot_info = {
         allData: null,
-        sex: null,
-        department: [],
-        disease: null,
-        plotKind: 0,
-        axisContainer: d3.select(".filter-axis"),
         filteredData: null,
         x_label: null,
         y_label: null,
+        plotContainer: d3.select("svg"),
+        legendContainer: d3.select(".legend"),
+    }
+    let filter_info = {
+        allData: null,
+        sex: [],
+        department: [],
+        disease: null,
+        plotKind: null
     }
     let other_info = {
+        axisContainer: d3.select(".filter-axis"),
         diseasesList: null,
         departmentList: null,
         sexList: null,
         plotKindList: plotKindList,
+        plotKindValueList: plotKindValueList,
         axisList: axisList
     }
+
     let all_info = {
-        plot_info: plot_info, 
+        plot_info: plot_info,
+        filter_info: filter_info, 
         other_info: other_info
     }
 
@@ -64,6 +73,7 @@ function loadData(){
           d.bmi    = +d.bmi;
         });
         plot_info.allData = data;
+        filter_info.allData = data;
 
         other_info.diseasesList = Array.from(new Set(data.map(d => d.dx))).sort();
         other_info.departmentList = Array.from(new Set(data.map(d => d.department))).sort();
@@ -113,9 +123,9 @@ function filterDiseases(all_info) {
         .text("Select Diseases")
         .on("click", function() {
             button.text("Select Diseases");
-            all_info.plot_info.disease = "";
+            all_info.filter_info.disease = null;
             menu.style("display", "none");
-            draw(all_info.plot_info);
+            draw(all_info);
         });
 
     all_info.other_info.diseasesList.forEach(function(disease) {
@@ -123,9 +133,9 @@ function filterDiseases(all_info) {
             .text(disease)
             .on("click", function() {
                 button.text(disease);
-                all_info.plot_info.disease = disease;
+                all_info.filter_info.disease = disease;
                 menu.style("display", "none");
-                draw(all_info.plot_info);
+                draw(all_info);
             });
     });
 }
@@ -144,10 +154,10 @@ function filterDepartment(all_info){
 
             allBtn.classed("selected", !wasSelected);
             container.selectAll("button.department").classed("selected", !wasSelected);
-            all_info.plot_info.department = 
+            all_info.filter_info.department = 
                 !wasSelected ? all_info.other_info.departmentList.slice() : [];
     
-            draw(all_info.plot_info);
+            draw(all_info);
         });
 
     all_info.other_info.departmentList.forEach(dept => {
@@ -166,7 +176,7 @@ function filterDepartment(all_info){
                         selectedDepts.push(d3.select(this).datum());
                     }
                 });
-                all_info.plot_info.department = selectedDepts;
+                all_info.filter_info.department = selectedDepts;
 
                 container
                     .select("button.department.all")
@@ -175,12 +185,12 @@ function filterDepartment(all_info){
                         selectedDepts.length === all_info.other_info.departmentList.length
                     );
                 
-                draw(all_info.plot_info);
+                draw(all_info);
             });
     });
 
     container.selectAll("button.department").classed("selected", true);
-    all_info.plot_info.department = all_info.other_info.departmentList.slice();
+    all_info.filter_info.department = all_info.other_info.departmentList.slice();
 }
 
 function filterSex(all_info) {
@@ -197,9 +207,9 @@ function filterSex(all_info) {
 
             allBtn.classed("selected", !wasSelected);
             container.selectAll("button.sex").classed("selected", !wasSelected);
-            all_info.plot_info.sex = !wasSelected ? all_info.other_info.sexList.slice() : [];
+            all_info.filter_info.sex = !wasSelected ? all_info.other_info.sexList.slice() : [];
     
-            draw(all_info.plot_info);
+            draw(all_info);
         });
 
     all_info.other_info.sexList.forEach(sex => {
@@ -218,7 +228,7 @@ function filterSex(all_info) {
                         selectedSexes.push(d3.select(this).datum());
                     }
                 });
-                all_info.plot_info.sex = selectedSexes;
+                all_info.filter_info.sex = selectedSexes;
 
                 // TODO with all or not
                 container
@@ -228,12 +238,12 @@ function filterSex(all_info) {
                         selectedSexes.length === all_info.other_info.sexList.length
                     );
                 
-                draw(all_info.plot_info);
+                draw(all_info);
             });
     });
 
     container.selectAll("button.sex").classed("selected", true);
-    all_info.plot_info.sex = all_info.other_info.sexList.slice();
+    all_info.filter_info.sex = all_info.other_info.sexList.slice();
 }
 
 function filterPlotKind(all_info) {
@@ -252,29 +262,30 @@ function filterPlotKind(all_info) {
                     .classed("selected", false);
                 btn.classed("selected", true);
                 
-                all_info.plot_info.plotKind = idx;
+                all_info.filter_info.plotKind = all_info.other_info.plotKindValueList[idx];
 
-                draw(all_info.plot_info);
+                draw(all_info);
             });
 
         if (idx === 0) {
             btn.classed("selected", true);
+            all_info.filter_info.plotKind = all_info.other_info.plotKindValueList[0];
         }
     });
 }
 
 function filterAxis(all_info) {
-    let container = all_info.plot_info.axisContainer;
+    let container = all_info.other_info.axisContainer;
     container.selectAll("*").remove();
 
     let xLabel = container.append("label")
-        .attr("class", "axis-label")
+        .attr("class", "x axis-label")
         .html("X-axis: ");
 
     let xSelect = xLabel.append("select")
         .on("change", function() {
             all_info.plot_info.x_label = d3.select(this).property("value");
-            draw(all_info.plot_info);
+            draw(all_info);
         });
 
     all_info.other_info.axisList.forEach(function(axis) {
@@ -283,14 +294,16 @@ function filterAxis(all_info) {
             .text(title(axis));
     });
 
+    all_info.plot_info.x_label = all_info.other_info.axisList[0];
+
     let yLabel = container.append("label")
-        .attr("class", "axis-label")
+        .attr("class", "y axis-label")
         .html("Y-axis: ");
 
     let ySelect = yLabel.append("select")
         .on("change", function() {
             all_info.plot_info.y_label = d3.select(this).property("value");
-            draw(all_info.plot_info);
+            draw(all_info);
         });
 
     all_info.other_info.axisList.forEach(function(axis) {
@@ -298,19 +311,64 @@ function filterAxis(all_info) {
             .attr("value", axis)
             .text(title(axis));
     });
+
+    all_info.plot_info.y_label = all_info.other_info.axisList[0];
 }
 
-
-function draw(plot_info){
-    let filtered = filterData(plot_info)
-    return
+function filterData(filter_info) {
+    let data = filter_info.allData;
+    
+    if (filter_info.sex.length > 0) {
+        data = data.filter(d => filter_info.sex.includes(d.sex));
+    }
+    
+    if (filter_info.department.length > 0) {
+        data = data.filter(d => filter_info.department.includes(d.department));
+    }
+    
+    if (filter_info.disease) {
+        data = data.filter(d => d.dx === filter_info.disease);
+    }
+    
+    return data;
 }
 
+function draw(all_info){
+    let svg = all_info.plot_info.plotContainer;
+    let legend = all_info.plot_info.legendContainer;
+    svg.selectAll("*").remove();
+    legend.selectAll("*").remove();
 
-function filterData(plot_info) {
-    return
+    if (all_info.filter_info.department.length === 0 || all_info.filter_info.sex.length === 0) {
+        // svg.style("display", "none");
+        d3.select(".legend-box").style("display", "none");
+        d3.select(".no-selection").style("display", "flex");
+        return;
+    }
+
+    // svg.style("display", "inline");
+    d3.select(".legend-box").style("display", "flex");
+    d3.select(".no-selection").style("display", "none");
+
+    all_info.plot_info.filteredData = filterData(all_info.filter_info);
+    
+    switch(all_info.filter_info.plotKind) {
+        case "distribution":
+            all_info.other_info.axisContainer.select(".x").style("display", "inline");
+            all_info.other_info.axisContainer.select(".y").style("display", "none");
+            break;
+        case "piPlot":
+            all_info.other_info.axisContainer.selectAll(".axis-label").style("display", "none");
+            // TODO add cossponding draw function
+            break;
+        case "scatterPlot":
+            all_info.other_info.axisContainer.select(".x").style("display", "inline");
+            all_info.other_info.axisContainer.select(".y").style("display", "inline");
+            // TODO add cossponding draw function
+    }
+
+    console.log(all_info.plot_info)
 }
-
 
 async function loadPage(){
     let all_info = await loadData();
@@ -322,7 +380,7 @@ async function loadPage(){
     filterAxis(all_info);
     
 
-    // draw(all_info.plot_info);
+    draw(all_info);
     
 }
 

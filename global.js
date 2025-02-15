@@ -1,9 +1,9 @@
 import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7.9.0/+esm";
 
-const dataPath = "data/data.csv"
+const dataPath = "data/data_cleaned.csv"
 const axisList = ["age", "height", "weight", "bmi"]
-const plotKindList = ["distribution", "piPlot", "scatterPlot"]
-const plotKindValueList = ["distribution", "piPlot", "scatterPlot"]
+const plotKindList = ["distribution", "scatterPlot", "piPlot"]
+const plotKindValueList = ["distribution", "scatterPlot", "piPlot"]
 
 
 function title(s) {
@@ -35,19 +35,22 @@ select.addEventListener('input', function (event) {
 
 function loadData(){
     let plot_info = {
-        allData: null,
+        filteredAllData: null,
         filteredData: null,
         x_label: null,
         y_label: null,
         plotContainer: d3.select("svg"),
         legendContainer: d3.select(".legend"),
+        commentContainer: d3.select(".comment")
     }
     let filter_info = {
         allData: null,
         sex: [],
         department: [],
         disease: null,
-        plotKind: null
+        plotKind: null,
+        legendBox: d3.select(".legend-box"),
+        commentBox: d3.select(".comment-box")
     }
     let other_info = {
         axisContainer: d3.select(".filter-axis"),
@@ -104,8 +107,7 @@ function filterDiseases(all_info) {
     let searchContainer = menu.append("div")
     .attr("class", "search-container");
       
-      // 在包装容器内添加搜索输入框
-      searchContainer.append("input")
+    searchContainer.append("input")
         .attr("type", "text")
         .attr("placeholder", "Search...")
         .on("input", function() {
@@ -121,7 +123,10 @@ function filterDiseases(all_info) {
 
     ul.append("li")
         .text("Select Diseases")
+        .classed("all", true)
         .on("click", function() {
+            ul.selectAll("li").classed("selected", false);
+            d3.select(this).classed("selected", true);
             button.text("Select Diseases");
             all_info.filter_info.disease = null;
             menu.style("display", "none");
@@ -132,12 +137,33 @@ function filterDiseases(all_info) {
         ul.append("li")
             .text(disease)
             .on("click", function() {
-                button.text(disease);
-                all_info.filter_info.disease = disease;
-                menu.style("display", "none");
-                draw(all_info);
+                if (!d3.select(this).classed("selected")) {
+                    ul.selectAll("li").classed("selected", false);
+                    d3.select(this).classed("selected", true);
+                    button.text(disease);
+                    all_info.filter_info.disease = disease;
+                    menu.style("display", "none");
+                    draw(all_info);
+                } else {
+                    ul.selectAll("li").classed("selected", false);
+                    d3.select(".all").classed("selected", true);
+                    button.text("Select Diseases");
+                    all_info.filter_info.disease = null;
+                    menu.style("display", "none");
+                    draw(all_info);
+                }
             });
     });
+
+    if (all_info.filter_info.disease) {
+        d3.selectAll(".dropdown-menu ul li")
+            .filter(function() {
+                return d3.select(this).text().trim() === filterValue;
+            })
+            .classed("selected", true);
+    } else {
+        d3.select(".all").classed("selected", true);
+    }
 }
 
 
@@ -315,7 +341,8 @@ function filterAxis(all_info) {
     all_info.plot_info.y_label = all_info.other_info.axisList[0];
 }
 
-function filterData(filter_info) {
+function filterData(all_info) {
+    let filter_info = all_info.filter_info;
     let data = filter_info.allData;
     
     if (filter_info.sex.length > 0) {
@@ -325,49 +352,54 @@ function filterData(filter_info) {
     if (filter_info.department.length > 0) {
         data = data.filter(d => filter_info.department.includes(d.department));
     }
+
+    all_info.plot_info.filteredAllData = data;
     
     if (filter_info.disease) {
         data = data.filter(d => d.dx === filter_info.disease);
+        filter_info.legendBox.style("display", "none")
+        filter_info.commentBox.style("display", "flex")
+    } else {
+        filter_info.legendBox.style("display", "flex")
+        filter_info.commentBox.style("display", "none")
     }
-    
-    return data;
+
+    all_info.plot_info.filteredData = data;
 }
 
 function draw(all_info){
-    let svg = all_info.plot_info.plotContainer;
-    let legend = all_info.plot_info.legendContainer;
-    svg.selectAll("*").remove();
-    legend.selectAll("*").remove();
+    all_info.plot_info.plotContainer.selectAll("*").remove();
+    all_info.plot_info.legendContainer.selectAll("*").remove();
+    all_info.plot_info.commentContainer.selectAll("*").remove();
 
     if (all_info.filter_info.department.length === 0 || all_info.filter_info.sex.length === 0) {
-        // svg.style("display", "none");
-        d3.select(".legend-box").style("display", "none");
+        d3.select(".legend-comment").style("display", "none");
         d3.select(".no-selection").style("display", "flex");
         return;
     }
 
-    // svg.style("display", "inline");
-    d3.select(".legend-box").style("display", "flex");
+    d3.select(".legend-comment").style("display", "flex");
     d3.select(".no-selection").style("display", "none");
 
-    all_info.plot_info.filteredData = filterData(all_info.filter_info);
+    filterData(all_info);
     
     switch(all_info.filter_info.plotKind) {
         case "distribution":
             all_info.other_info.axisContainer.select(".x").style("display", "inline");
             all_info.other_info.axisContainer.select(".y").style("display", "none");
-            break;
-        case "piPlot":
-            all_info.other_info.axisContainer.selectAll(".axis-label").style("display", "none");
             // TODO add cossponding draw function
             break;
         case "scatterPlot":
             all_info.other_info.axisContainer.select(".x").style("display", "inline");
             all_info.other_info.axisContainer.select(".y").style("display", "inline");
             // TODO add cossponding draw function
+            break;
+        case "piPlot":
+            all_info.other_info.axisContainer.selectAll(".axis-label").style("display", "none");
+            // TODO add cossponding draw function
+            break;
     }
 
-    console.log(all_info.plot_info)
 }
 
 async function loadPage(){
@@ -379,9 +411,20 @@ async function loadPage(){
     filterPlotKind(all_info);
     filterAxis(all_info);
     
-
     draw(all_info);
-    
 }
 
-loadPage();
+document.addEventListener('DOMContentLoaded', async () => {
+    await loadPage();
+
+    const svgElement = document.querySelector('svg');
+    const svgHeight = svgElement.getBoundingClientRect().height;
+    document.documentElement.style.setProperty('--svg-height', svgHeight + 'px');
+});
+
+document.addEventListener("click", function(event) {
+    let container = document.querySelector(".filter-diseases");
+    if (!container.contains(event.target)) {
+        container.querySelector(".dropdown-menu").style.display = "none";
+    }
+});

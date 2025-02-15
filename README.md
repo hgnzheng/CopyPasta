@@ -38,6 +38,10 @@ Next Steps
   }
 
   function header: function functionName(all_info) // 只需要画图，仅使用上诉的plot_info obj
+  legend selection step:
+    - click 后 修改filter_info.dieases = click value
+    - call filterdieases(all_info)
+    - call(draw)
 
 Next Meeting: February 14th, Friday at 4:00PM. Tasks are delegated as follows:
 Hargen: Convert clustering plot into a function (enable choose of x-y axes. //不需要在function里enable了

@@ -2,8 +2,8 @@ import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7.9.0/+esm";
 
 const dataPath = "data/data_cleaned.csv"
 const axisList = ["age", "height", "weight", "bmi"]
-const plotKindList = ["distribution", "scatterPlot", "DeathRate", "piPlot"]
-const plotKindValueList = ["distribution", "scatterPlot", "linePlot", "piPlot"]
+const plotKindList = ["Distribution", "DeathRate", "Need a Name", "Compare to All Diseases"]
+const plotKindValueList = ["distribution", "linePlot", "scatterPlot", "piPlot"]
 const plotKindNeedAbleList = ["piPlot"]
 
 

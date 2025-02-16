@@ -133,6 +133,10 @@ h1 {
     padding: 0;
 }
 
+.filter-axis label.y {
+    margin-left: 2px;
+}
+
 .filter-axis select{
     padding: 4px;
     border: 1px solid light-dark(#ddd, #202020);

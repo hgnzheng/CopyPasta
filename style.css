@@ -119,16 +119,6 @@ h1 {
     flex-direction: column;
     gap: 12px;
 }
-
-.filter button {
-    padding: 6px 8px;
-    background-color: light-dark(#f2f2f2, #404040);
-    border: 1px solid light-dark(#ddd, #202020);
-    border-radius: 8px; 
-    box-shadow: 0 4px 6px light-dark(rgba(0, 0, 0, 0.1), rgba(255, 255, 255, 0.1));
-    cursor: pointer;
-    transition: all 0.5s ease;
-}
   
 .filter-attr,
 .filter-kind {
@@ -151,12 +141,26 @@ h1 {
     cursor: pointer;
 }
 
-.filter-department button.selected,
-.filter-sex button.selected,
-.filter-plotkind button.selected {
+.filter button {
+    padding: 6px 8px;
+    background-color: light-dark(#f2f2f2, #404040);
+    border: 1px solid light-dark(#ddd, #202020);
+    border-radius: 8px; 
+    box-shadow: 0 4px 6px light-dark(rgba(0, 0, 0, 0.1), rgba(255, 255, 255, 0.1));
+    cursor: pointer;
+    transition: all 0.5s ease;
+}
+
+.filter button.selected {
   background-color: light-dark(oklch(from var(--color-accent) 80% 5% h), color-mix(in oklch, var(--color-accent), canvas 5%));
   box-shadow: inset 3px 3px light-dark(rgba(0, 0, 0, 0.1), rgba(255, 255, 255, 0.1));
   transform: translateY(1px);
+}
+
+.filter button.unable {
+    pointer-events: none;
+    opacity: 0.5;
+    cursor: not-allowed;
 }
   
 .plot {
@@ -213,6 +217,7 @@ h1 {
     gap: 2px;
     font-family: Arial, sans-serif;
     font-size: 14px;
+    cursor: pointer;
 }
 
 .comment-box {

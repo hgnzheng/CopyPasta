@@ -54,7 +54,9 @@ export function drawDistribution(all_info) {
   svg.selectAll("g.distribution-group").remove();
 
   const totalWidth = 1200, totalHeight = 800;
-  const margin = { top: 40, right: 200, bottom: 60, left: 60 };
+  // TODO modify margin
+  // const margin = { top: 40, right: 200, bottom: 60, left: 60 };
+  const margin = { top: 40, right: 40, bottom: 60, left: 60};
   const innerWidth = totalWidth - margin.left - margin.right;
   const innerHeight = totalHeight - margin.top - margin.bottom;
 
@@ -139,15 +141,17 @@ export function drawDistribution(all_info) {
 
   // Legend
   const legendContainer = all_info.plot_info.legendContainer;
-  legendContainer.selectAll("*").remove();
+  // TODO 
+  // legendContainer.selectAll("*").remove();
 
+  // TODO 这个我在外面做 如果没有数据的话，同时我会把对应的department sex的bottom给变成不可选中
   // If usedData is empty, show no distribution
-  if (usedData.length === 0) {
-    legendContainer.append("li")
-      .text("No data in distribution")
-      .style("color", "#888");
-    return;
-  }
+  // if (usedData.length === 0) {
+  //   legendContainer.append("li")
+  //     .text("No data in distribution")
+  //     .style("color", "#888");
+  //   return;
+  // }
 
   // multi disease => top 5, single disease => "This is X"
   if (!isSingleDisease) {

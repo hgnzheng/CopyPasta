@@ -671,12 +671,11 @@ function draw(all_info){
             all_info.other_info.axisContainer.select(".x").style("display", "inline");
             all_info.other_info.axisContainer.select(".y").style("display", "none");
             // TODO add cossponding draw function
-            all_info.plot_info.y_label = "Death Rate";
             drawDeathRateChart(all_info);
             break;
     }
 
-    all_info.plot_info.legendContainer.selectAll("li").each(function() {
+    all_info.plot_info.legendContainer.selectAll("li:not(.other)").each(function() {
         let li = d3.select(this);
         li.on("click", function() {
             all_info.filter_info.disease = li.datum();

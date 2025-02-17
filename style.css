@@ -221,7 +221,25 @@ h1 {
     gap: 2px;
     font-family: Arial, sans-serif;
     font-size: 14px;
+}
+
+.legend li:not(.other) {
     cursor: pointer;
+}
+
+.legend .swatch {
+    width: 16px;
+    height: 16px;
+    background-color: var(--color); 
+    display: inline-block;
+    border-radius: 50%; 
+    border: 1px solid #ccc;
+}
+
+em {
+    font-style: normal;
+    color: light-dark(#666, #ccc);
+    margin-left: 4px;
 }
 
 .comment-box {

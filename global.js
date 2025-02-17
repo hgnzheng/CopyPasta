@@ -1,6 +1,8 @@
 import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7.9.0/+esm";
+import { drawDeathRateChart } from "./death_rate_plot.js";
+import { scatterPlotChart } from "./scatter_plot.js";
 
-const dataPath = "data/data_cleaned.csv"
+const dataPath = "data/data_cleaned_filtered.csv"
 const axisList = ["age", "height", "weight", "bmi"]
 const plotKindList = ["Distribution", "DeathRate", "Need a Name", "Compare to All Diseases"]
 const plotKindValueList = ["distribution", "linePlot", "scatterPlot", "piPlot"]
@@ -659,6 +661,7 @@ function draw(all_info){
             all_info.other_info.axisContainer.select(".x").style("display", "inline");
             all_info.other_info.axisContainer.select(".y").style("display", "inline");
             // TODO add cossponding draw function
+            scatterPlotChart(all_info);
             break;
         case "piPlot":
             all_info.other_info.axisContainer.selectAll(".axis-label").style("display", "none");
@@ -668,6 +671,8 @@ function draw(all_info){
             all_info.other_info.axisContainer.select(".x").style("display", "inline");
             all_info.other_info.axisContainer.select(".y").style("display", "none");
             // TODO add cossponding draw function
+            all_info.plot_info.y_label = "Death Rate";
+            drawDeathRateChart(all_info);
             break;
     }
 

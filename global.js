@@ -1,12 +1,14 @@
 import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7.9.0/+esm";
-import { drawDeathRateChart } from "./death_rate_plot.js";
-import { scatterPlotChart } from "./scatter_plot.js";
+import { drawDeathRateChart } from "./plots/death_rate_plot.js";
+import { drawScatterPlotChart } from "./plots/scatter_plot.js";
+import { drawDistributionPlotChart } from "./plots/distribution_plot.js";
+import { drawPiePlotChart } from "./plots/pie_plot.js";
 
 const dataPath = "data/data_cleaned_filtered.csv"
 const axisList = ["age", "height", "weight", "bmi"]
-const plotKindList = ["Distribution", "DeathRate", "Need a Name", "Compare to All Diseases"]
-const plotKindValueList = ["distribution", "linePlot", "scatterPlot", "piPlot"]
-const plotKindNeedAbleList = ["piPlot"]
+const plotKindList = ["Distribution", "Death Rate", "Physical Condition", "Compare to All Diseases"]
+const plotKindValueList = ["distribution", "deathRate", "scatterPlot", "piePlot"]
+const plotKindNeedAbleList = ["piePlot"]
 
 
 function title(s) {
@@ -656,18 +658,20 @@ function draw(all_info){
             all_info.other_info.axisContainer.select(".x").style("display", "inline");
             all_info.other_info.axisContainer.select(".y").style("display", "none");
             // TODO add cossponding draw function
+            drawDistributionPlotChart(all_info);
             break;
         case "scatterPlot":
             all_info.other_info.axisContainer.select(".x").style("display", "inline");
             all_info.other_info.axisContainer.select(".y").style("display", "inline");
             // TODO add cossponding draw function
-            scatterPlotChart(all_info);
+            drawScatterPlotChart(all_info);
             break;
-        case "piPlot":
+        case "piePlot":
             all_info.other_info.axisContainer.selectAll(".axis-label").style("display", "none");
             // TODO add cossponding draw function
+            drawPiePlotChart(all_info);
             break;
-        case "linePlot":
+        case "deathRate":
             all_info.other_info.axisContainer.select(".x").style("display", "inline");
             all_info.other_info.axisContainer.select(".y").style("display", "none");
             // TODO add cossponding draw function

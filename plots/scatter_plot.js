@@ -8,7 +8,7 @@ import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7.9.0/+esm";
  *
  * Now uses **larger circles** in the aggregated view.
  */
-export function scatterPlotChart(all_info) {
+export function drawScatterPlotChart(all_info) {
     const svg = all_info.plot_info.plotContainer;
     const svgWidth  = +svg.attr("width");
     const svgHeight = +svg.attr("height");

@@ -251,12 +251,13 @@ export function drawDeathRateChart(all_info) {
     legend.selectAll("*").remove();
     dataByDx.forEach(([dx, values]) => {
         // Sum the counts for this disease
-        const totalCount = d3.sum(values, d => d.count);
+        const totalCount = d3.sum(values, d => d.count); // TODO NEED CHANGE 显示percentage吧会不会更好我觉得，毕竟是death rate
     
         // Build the legend item text with the total count
         legend.append("li")
             .attr("style", `--color: ${colorScale(dx)}`)
-            .html(`<span class="swatch"></span> ${dx} (${totalCount})`);
+            .html(`<span class="swatch"></span> ${dx} <em>(${totalCount})</em>`)
+            .datum(dx); // TODO EDITED add datum for selection
     });
 
     // Display a summary if a single disease is selected

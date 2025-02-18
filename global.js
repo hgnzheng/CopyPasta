@@ -679,24 +679,12 @@ function draw(all_info){
             break;
     }
 
-    //all_info.plot_info.legendContainer.selectAll("li:not(.other)").each(function() {
-    //    let li = d3.select(this);
-    //    li.on("click", function() {
-    //        all_info.filter_info.disease = li.datum();
-    //        filterDiseases();
-    //        draw();
-    //    });
-    //});
-
     all_info.plot_info.legendContainer.selectAll("li:not(.other)").each(function() {
-        let li = d3.select(this);
-        li.on("click", function() {
-            const diseaseName = li.datum(); 
-            window.selectDiseaseInDropdown(all_info, diseaseName);
-        });
+       let li = d3.select(this);
+       li.on("click", function() {
+        selectDiseaseViaPlot(all_info, li.datum());
+       });
     });
-    
-
 }
 
 async function loadPage(){
@@ -726,28 +714,9 @@ document.addEventListener("click", function(event) {
     }
 });
 
-
-window.selectDiseaseInDropdown = selectDiseaseInDropdown;
-function selectDiseaseInDropdown(all_info, diseaseName) {
-    let container = d3.select(".filter-diseases");
-    let menu = container.select(".dropdown-menu");
-    let ul = menu.select("ul");
-    let button = container.select("button");
-    ul.selectAll("li").classed("selected", false);
-    let matchedLi = ul.selectAll("li").filter(function() {
-        return d3.select(this).text().trim().startsWith(diseaseName);
-    });
-
-    if (!matchedLi.empty()) {
-        matchedLi.classed("selected", true);
-        button.text(diseaseName);
-        all_info.filter_info.disease = diseaseName;
-    } else {
-        ul.selectAll("li.all").classed("selected", true);
-        button.text("Select Diseases");
-        all_info.filter_info.disease = null;
-    }
-    menu.style("display", "none");
+function selectDiseaseViaPlot(all_info, diseaseName) {
+    all_info.filter_info.disease = diseaseName;
+    filterDiseases(all_info);
     updateFilterButton(all_info);
     draw(all_info);
 }

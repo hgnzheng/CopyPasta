@@ -247,10 +247,6 @@ em {
     /* justify-content: start;  */
 }
 
-.legend p {
-    margin: 0px;
-}
-
 .legend li:not(.other) {
     cursor: pointer;
 }

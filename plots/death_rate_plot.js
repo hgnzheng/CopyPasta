@@ -242,21 +242,9 @@ export function drawDeathRateChart(all_info) {
     legend.selectAll("*").remove();
     dataByDx.forEach(([dx]) => {
         const legendItem = legend.append("div")
-        .attr("class", "legend-item")
-        .style("display", "flex")
-        .style("align-items", "center")
-        .style("cursor", "pointer")
-        .on("click", function() {
-            all_info.filter_info.disease = dx;
-            filterDiseases(all_info);
-            draw(all_info);
-        });
+        .attr("class", "legend-item");
 
-        legendItem.append("div")
-        .style("width", "20px")
-        .style("height", "20px")
-        .style("background-color", colorScale(dx))
-        .style("margin-right", "5px");
+        legendItem.append("div");
 
         legendItem.append("div").text(dx);
     });

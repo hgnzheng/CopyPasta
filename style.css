@@ -4,7 +4,7 @@
 
 body {
     font: 100%/1.5 system-ui;
-    max-width: 100ch;
+    max-width: 120ch;
     margin-inline: auto;
     padding: 25px;
     font-family: "Times New Roman", Times, serif;
@@ -34,6 +34,11 @@ body {
 
 h1 {
     text-align: center;
+    font-size: 40px;
+}
+
+.summary {
+    font-size: 18px;
 }
 
 .filter-diseases {
@@ -153,6 +158,7 @@ h1 {
     box-shadow: 0 4px 6px light-dark(rgba(0, 0, 0, 0.1), rgba(255, 255, 255, 0.1));
     cursor: pointer;
     transition: all 0.5s ease;
+    font-size: 14px;
 }
 
 .filter button.selected {

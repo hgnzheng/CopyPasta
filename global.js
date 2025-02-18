@@ -657,24 +657,20 @@ function draw(all_info){
         case "distribution":
             all_info.other_info.axisContainer.select(".x").style("display", "inline");
             all_info.other_info.axisContainer.select(".y").style("display", "none");
-            // TODO add cossponding draw function
             drawDistributionPlotChart(all_info);
             break;
         case "scatterPlot":
             all_info.other_info.axisContainer.select(".x").style("display", "inline");
             all_info.other_info.axisContainer.select(".y").style("display", "inline");
-            // TODO add cossponding draw function
             drawScatterPlotChart(all_info);
             break;
         case "piePlot":
             all_info.other_info.axisContainer.selectAll(".axis-label").style("display", "none");
-            // TODO add cossponding draw function
             drawPiePlotChart(all_info);
             break;
         case "deathRate":
             all_info.other_info.axisContainer.select(".x").style("display", "inline");
             all_info.other_info.axisContainer.select(".y").style("display", "none");
-            // TODO add cossponding draw function
             drawDeathRateChart(all_info);
             break;
     }

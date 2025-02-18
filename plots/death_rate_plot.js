@@ -151,7 +151,7 @@ export function drawDeathRateChart(all_info) {
         .attr("x", -margin.top)
         .attr("text-anchor", "end")
         .style("font-size", "24px")
-        .text("Death Rate");
+        .text("Death Rate (%)"); // TODO EDITED add the unit of the death rate
 
     // Prepare the line generator and color scale
     const dataByDx = d3.groups(aggregatedData, d => d.dx);

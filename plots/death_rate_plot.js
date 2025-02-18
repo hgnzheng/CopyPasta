@@ -69,12 +69,12 @@ export function drawDeathRateChart(all_info) {
     data.forEach(d => {
         const val = +d[xVar];
         if (!isNaN(val)) {
-        for (let i = 0; i < bins.length - 1; i++) {
-            if (val >= bins[i] && val < bins[i + 1]) {
-            d.x_bin = [bins[i], bins[i + 1]];
-            break;
+            for (let i = 0; i < bins.length - 1; i++) {
+                if (val >= bins[i] && val < bins[i + 1]) {
+                    d.x_bin = [bins[i], bins[i + 1]];
+                    break;
+                }
             }
-        }
         }
     });
 
@@ -83,8 +83,8 @@ export function drawDeathRateChart(all_info) {
     const grouped = d3.rollup(
         validData,
         v => ({
-        death_inhosp: d3.mean(v, d => d.death_inhosp),
-        count: v.length
+            death_inhosp: d3.mean(v, d => d.death_inhosp),
+            count: v.length
         }),
         d => d.dx,
         d => d.x_bin.toString()
@@ -94,14 +94,14 @@ export function drawDeathRateChart(all_info) {
     let aggregatedData = [];
     for (let [dx, binMap] of grouped.entries()) {
         for (let [binStr, stats] of binMap.entries()) {
-        const binParts = binStr.split(",").map(Number);
-        aggregatedData.push({
-            dx: dx,
-            death_inhosp: stats.death_inhosp,
-            count: stats.count,
-            x_bin: binParts,
-            x_mid: (binParts[0] + binParts[1]) / 2
-        });
+            const binParts = binStr.split(",").map(Number);
+            aggregatedData.push({
+                dx: dx,
+                death_inhosp: stats.death_inhosp,
+                count: stats.count,
+                x_bin: binParts,
+                x_mid: (binParts[0] + binParts[1]) / 2
+            });
         }
     }
 
@@ -109,10 +109,10 @@ export function drawDeathRateChart(all_info) {
     if (!all_info.filter_info.disease) {
         const diseaseGroups = d3.group(aggregatedData, d => d.dx);
         const top5Diseases = Array.from(diseaseGroups.entries())
-        .map(([dx, arr]) => ({ dx, avg: d3.mean(arr, d => d.death_inhosp) }))
-        .sort((a, b) => d3.descending(a.avg, b.avg))
-        .slice(0, 5)
-        .map(d => d.dx);
+            .map(([dx, arr]) => ({ dx, avg: d3.mean(arr, d => d.death_inhosp) }))
+            .sort((a, b) => d3.descending(a.avg, b.avg))
+            .slice(0, 5)
+            .map(d => d.dx);
 
         aggregatedData = aggregatedData.filter(d => top5Diseases.includes(d.dx));
     }
@@ -124,25 +124,33 @@ export function drawDeathRateChart(all_info) {
     const yScale = d3.scaleLinear().domain([0, yMax]).range([height, 0]).nice();
 
     // Create and append the axes
+    // Increase font size for axis tick labels
     g.append("g")
         .attr("transform", `translate(0,${height})`)
-        .call(d3.axisBottom(xScale));
-    g.append("g")
-        .call(d3.axisLeft(yScale));
+        .call(d3.axisBottom(xScale))
+        .selectAll("text")
+        .style("font-size", "20px");
 
-    // Axis labels
+    g.append("g")
+        .call(d3.axisLeft(yScale))
+        .selectAll("text")
+        .style("font-size", "20px");
+
+    // Axis labels with increased font size
     if (all_info.plot_info.x_label) {
         g.append("text")
-        .attr("x", width)
-        .attr("y", height + margin.bottom - 10)
-        .attr("text-anchor", "end")
-        .text(all_info.plot_info.x_label);
+            .attr("x", width)
+            .attr("y", height + margin.bottom - 10)
+            .attr("text-anchor", "end")
+            .style("font-size", "24px")
+            .text(all_info.plot_info.x_label);
     }
     g.append("text")
         .attr("transform", "rotate(-90)")
         .attr("y", -margin.left + 15)
         .attr("x", -margin.top)
         .attr("text-anchor", "end")
+        .style("font-size", "24px")
         .text("Death Rate");
 
     // Prepare the line generator and color scale
@@ -157,15 +165,15 @@ export function drawDeathRateChart(all_info) {
     let tooltip = d3.select("body").select(".tooltip");
     if (tooltip.empty()) {
         tooltip = d3.select("body").append("div")
-        .attr("class", "tooltip")
-        .style("position", "absolute")
-        .style("background", "rgba(0,0,0,0.7)")
-        .style("color", "white")
-        .style("padding", "5px")
-        .style("border-radius", "3px")
-        .style("pointer-events", "none")
-        .style("font-size", "12px")
-        .style("display", "none");
+            .attr("class", "tooltip")
+            .style("position", "absolute")
+            .style("background", "rgba(0,0,0,0.7)")
+            .style("color", "white")
+            .style("padding", "5px")
+            .style("border-radius", "3px")
+            .style("pointer-events", "none")
+            .style("font-size", "12px")
+            .style("display", "none");
     }
 
     // Draw lines and markers with an invisible "hover" circle
@@ -175,84 +183,109 @@ export function drawDeathRateChart(all_info) {
 
         // Draw the line for this disease
         g.append("path")
-        .datum(values)
-        .attr("fill", "none")
-        .attr("stroke", colorScale(dx))
-        .attr("stroke-width", 2)
-        .attr("d", lineGen);
+            .datum(values)
+            .attr("fill", "none")
+            .attr("stroke", colorScale(dx))
+            .attr("stroke-width", 2)
+            .attr("d", lineGen);
 
         // For each data point, create a <g> with two circles:
         // 1) A small visible circle
         // 2) A larger invisible circle to capture hover events
         const markers = g.selectAll(`.marker-${dx}`)
-        .data(values)
-        .enter()
-        .append("g")
-        .attr("class", `marker-${dx}`)
-        .attr("transform", d => `translate(${xScale(d.x_mid)}, ${yScale(d.death_inhosp)})`);
+            .data(values)
+            .enter()
+            .append("g")
+            .attr("class", `marker-${dx}`)
+            .attr("transform", d => `translate(${xScale(d.x_mid)}, ${yScale(d.death_inhosp)})`);
 
         // Small visible circle
         markers.append("circle")
-        .attr("r", 4)
-        .attr("fill", colorScale(dx));
+            .attr("r", 4)
+            .attr("fill", colorScale(dx));
 
         // Larger invisible circle for easier hovering
         markers.append("circle")
-        .attr("r", 10)                // bigger radius for hover
-        .attr("fill", "transparent")  // invisible
-        .style("pointer-events", "all") // ensure it captures mouse events
-        .on("mouseover", function(event, d) {
-            tooltip.style("display", "block")
-            .html(`
-                <strong>Disease:</strong> ${d.dx}<br>
-                <strong>x range:</strong> ${d.x_bin[0].toFixed(2)} - ${d.x_bin[1].toFixed(2)}<br>
-                <strong>Mean Death Rate:</strong> ${d.death_inhosp.toFixed(2)}<br>
-                <strong>Count:</strong> ${d.count}
-            `);
-        })
-        .on("mousemove", function(event) {
-            tooltip.style("left", (event.pageX + 10) + "px")
-            .style("top", (event.pageY - 28) + "px");
-        })
-        .on("mouseout", function() {
-            tooltip.style("display", "none");
-        });
+            .attr("r", 10)                // bigger radius for hover
+            .attr("fill", "transparent")  // invisible
+            .style("pointer-events", "all") // ensure it captures mouse events
+            .on("mouseover", function(event, d) {
+                tooltip.style("display", "block")
+                    .html(`
+                        <strong>Disease:</strong> ${d.dx}<br>
+                        <strong>x range:</strong> ${d.x_bin[0].toFixed(2)} - ${d.x_bin[1].toFixed(2)}<br>
+                        <strong>Mean Death Rate:</strong> ${d.death_inhosp.toFixed(2)}<br>
+                        <strong>Count:</strong> ${d.count}
+                    `);
+            })
+            .on("mousemove", function(event) {
+                tooltip.style("left", (event.pageX + 10) + "px")
+                    .style("top", (event.pageY - 28) + "px");
+            })
+            .on("mouseout", function() {
+                tooltip.style("display", "none");
+            });
     });
 
     // Draw a vertical reference line if an input value is provided
     const input_x = all_info.plot_info.input_x;
     if (typeof input_x === "number") {
         g.append("line")
-        .attr("x1", xScale(input_x))
-        .attr("x2", xScale(input_x))
-        .attr("y1", 0)
-        .attr("y2", height)
-        .attr("stroke", "red")
-        .attr("stroke-dasharray", "4");
+            .attr("x1", xScale(input_x))
+            .attr("x2", xScale(input_x))
+            .attr("y1", 0)
+            .attr("y2", height)
+            .attr("stroke", "red")
+            .attr("stroke-dasharray", "4");
 
         g.append("text")
-        .attr("x", xScale(input_x) + 5)
-        .attr("y", 15)
-        .attr("fill", "red")
-        .text("Input X");
+            .attr("x", xScale(input_x) + 5)
+            .attr("y", 15)
+            .attr("fill", "red")
+            .style("font-size", "12px")
+            .text("Input X");
     }
 
     // Build the legend with interactive filtering
     const legend = all_info.plot_info.legendContainer;
     legend.selectAll("*").remove();
-    dataByDx.forEach(([dx]) => {
-        const legendItem = legend.append("div")
-        .attr("class", "legend-item");
-
-        legendItem.append("div");
-
-        legendItem.append("div").text(dx);
+    dataByDx.forEach(([dx, values]) => {
+        // Sum the counts for this disease
+        const totalCount = d3.sum(values, d => d.count);
+    
+        // Build the legend item text with the total count
+        legend.append("li")
+            .attr("style", `--color: ${colorScale(dx)}`)
+            .html(`<span class="swatch"></span> ${dx} (${totalCount})`);
     });
 
-    // Display a short summary if a single disease is selected
+    // Display a summary if a single disease is selected
     if (all_info.filter_info.disease) {
-        all_info.plot_info.commentContainer.text(
-        `Short summary for ${all_info.filter_info.disease}.`
-        );
+        // Filter aggregatedData for that single disease
+        const diseaseData = aggregatedData.filter(d => d.dx === all_info.filter_info.disease);
+
+        if (diseaseData.length > 0) {
+            const minDeath = d3.min(diseaseData, d => d.death_inhosp);
+            const maxDeath = d3.max(diseaseData, d => d.death_inhosp);
+            const meanDeath = d3.mean(diseaseData, d => d.death_inhosp);
+            // Sum of counts across bins for total data points
+            const totalPoints = d3.sum(diseaseData, d => d.count);
+
+            // Format summary with line breaks
+            const summaryHtml = `
+                <strong>Disease:</strong> ${all_info.filter_info.disease}<br>
+                <strong>Minimum Death Rate:</strong> ${minDeath.toFixed(2)}<br>
+                <strong>Maximum Death Rate:</strong> ${maxDeath.toFixed(2)}<br>
+                <strong>Average Death Rate:</strong> ${meanDeath.toFixed(2)}<br>
+                <strong>Total Points:</strong> ${totalPoints}
+            `;
+
+            // Use .html() so <br> tags create new lines
+            all_info.plot_info.commentContainer.html(summaryHtml);
+        } else {
+            all_info.plot_info.commentContainer.text(
+                `No data available for ${all_info.filter_info.disease}`
+            );
+        }
     }
 }

@@ -6,7 +6,7 @@ import { drawPiePlotChart } from "./plots/pie_plot.js";
 
 const dataPath = "data/data_cleaned_filtered.csv"
 const axisList = ["age", "height", "weight", "bmi"]
-const plotKindList = ["Distribution", "Death Rate", "Physical Condition", "Compare to All Diseases"]
+const plotKindList = ["Distribution", "Death Rate", "Physical Condition", "Percentage in Department"]
 const plotKindValueList = ["distribution", "deathRate", "scatterPlot", "piePlot"]
 const plotKindNeedAbleList = ["piePlot"]
 

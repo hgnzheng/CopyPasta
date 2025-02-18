@@ -12,7 +12,7 @@ const plotKindNeedAbleList = ["piePlot"]
 
 
 function title(s) {
-    return s.charAt(0).toUpperCase() + s.slice(1)
+    return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
 let currentTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";

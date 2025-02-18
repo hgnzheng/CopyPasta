@@ -105,6 +105,15 @@ h1 {
     font-size: inherit;
 }
 
+em {
+    font-style: normal;
+    color: light-dark(#666, #ccc);
+}
+
+.dropdown-menu em {
+    margin-left: 4px;
+}
+
 .dropdown-menu ul li.selected {
     background-color: light-dark(oklch(from var(--color-accent) 80% 5% h), color-mix(in oklch, var(--color-accent), canvas 15%));
 }
@@ -218,25 +227,37 @@ h1 {
 }
 
 .legend {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-    gap: 4px; 
+    display: grid;
+    /* flex-direction: column; */
+    grid-template-columns: 1fr; 
+        /* flex: 1; */
+    gap: 12px; 
     padding: 0;
     margin-top: 5px;
     margin-bottom: 0;
 }
 
 .legend li {
-    display:block;
-    align-items: center;
-    gap: 2px;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 6px;
     font-family: Arial, sans-serif;
     font-size: 16px;
+    align-items: center; 
+    /* justify-content: start;  */
+}
+
+.legend p {
+    margin: 0px;
 }
 
 .legend li:not(.other) {
     cursor: pointer;
+}
+
+.legend li.other {
+    margin-top: 4px;
+    margin-left: 2px;
 }
 
 .legend .swatch {
@@ -246,12 +267,6 @@ h1 {
     display: inline-block;
     border-radius: 50%; 
     border: 1px solid #ccc;
-}
-
-em {
-    font-style: normal;
-    color: light-dark(#666, #ccc);
-    margin-left: 4px;
 }
 
 .comment-box {

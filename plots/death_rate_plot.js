@@ -256,7 +256,7 @@ export function drawDeathRateChart(all_info) {
         // Build the legend item text with the total count
         legend.append("li")
             .attr("style", `--color: ${colorScale(dx)}`)
-            .html(`<span class="swatch"></span> ${dx} <em>(${totalCount})</em>`)
+            .html(`<span class="swatch"></span> <p>${dx}</p> <em>(${totalCount})</em>`) // TODO EDITED, dx in <p>, scatter那边按照这个来
             .datum(dx); // TODO EDITED add datum for selection
     });
 

@@ -234,7 +234,7 @@ export function drawDistributionPlotChart(all_info) {
         .style("top",  (evt.pageY - 15) + "px")
         .html(`
           <strong>${disease}</strong><br>
-          at <b>${shortBinLabel(binName)}</b> ${xAttr}, count = <b>${countVal}</b>.
+          ≈ <b>${shortBinLabel(binName)}</b> ${xAttr}, count = <b>${countVal}</b>.
         `);
     })
     .on("mouseout", function() {
@@ -267,7 +267,7 @@ export function drawDistributionPlotChart(all_info) {
 
     comment.html(`
       <p>
-        The current disease is ${diseaseName}
+        The current disease is <strong>${diseaseName}</strong><br>
         with <strong>${n}</strong> total samples.<br/>
         About the ${xAttr},
           the minimun count is <strong>${minX.toFixed(2)}</strong>,

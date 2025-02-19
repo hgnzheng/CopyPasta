@@ -171,7 +171,6 @@ export function drawDistributionPlotChart(all_info) {
     .attr("y", height + margin.bottom - 10)
     .attr("text-anchor", "end")
     .style("font-size", "24px")
-    .style("fill", "var(--text-color)")
     .text(xLabel);
 
   g.append("text")
@@ -180,7 +179,6 @@ export function drawDistributionPlotChart(all_info) {
     .attr("x", -margin.top + 20)
     .attr("text-anchor", "end")
     .style("font-size", "24px")
-    .style("fill", "var(--text-color)")
     .text("Count");
 
   let tooltip = d3.select("body").select(".tooltip");

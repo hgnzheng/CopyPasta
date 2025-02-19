@@ -47,7 +47,8 @@ function loadData(){
         plotContainer: d3.select("svg"),
         legendContainer: d3.select(".legend"),
         legendLabel: d3.select(".legend-label"),
-        commentContainer: d3.select(".comment")
+        commentContainer: d3.select(".comment"),
+        currentTheme: currentTheme
     }
     let filter_info = {
         allData: null,

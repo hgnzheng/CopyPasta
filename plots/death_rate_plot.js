@@ -315,8 +315,9 @@ export function drawDeathRateChart(all_info) {
     // If fewer than k diseases were displayed, add "Other" with 0.0 death rate
     if (!all_info.filter_info.disease && all_info.plot_info.actualCount < all_info.plot_info.top_k_value) {
         legend.append("li")
+            .attr("class", "other")
             .attr("style", `--color: gray`)
-            .html(`<span class="swatch" style="background: gray"></span> Other <em>(0.00%)</em>`)
+            .html(`The death rate of all other disease is 0.00%.`)
             .datum("Other");
     }
 

@@ -1,7 +1,7 @@
 import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7.9.0/+esm";
+import { selectDiseaseViaPlot } from "../global.js";
 
 export function drawDistributionPlotChart(all_info) {
-  // 0) 
   const svg = all_info.plot_info.plotContainer;
   const svgWidth  = +svg.attr("width");
   const svgHeight = +svg.attr("height");
@@ -19,8 +19,7 @@ export function drawDistributionPlotChart(all_info) {
   const xAttr   = all_info.plot_info.x_label || "bmi";
   const isSingleDisease = !!all_info.filter_info.disease;
 
-  // Legend & Comment
-  const legend  = all_info.plot_info.legendContainer;
+  const legend = all_info.plot_info.legendContainer;
   legend.selectAll("*").remove();
   const comment = all_info.plot_info.commentContainer;
   comment.selectAll("*").remove();
@@ -34,9 +33,6 @@ export function drawDistributionPlotChart(all_info) {
     return;
   }
 
-  /********************************************************
-   * 1) 
-   ********************************************************/
   const globalData = all_info.filter_info.allData; 
   const freqMap = d3.rollup(globalData, v => v.length, d => d.dx);
   const freqArray = Array.from(freqMap, ([dx, c]) => ({ dx, c }))
@@ -55,9 +51,6 @@ export function drawDistributionPlotChart(all_info) {
     }
   });
 
-  /********************************************************
-   * 2)
-   ********************************************************/
   let usedData, allDiseases;
   if (isSingleDisease) {
     usedData = dataDx;
@@ -76,9 +69,6 @@ export function drawDistributionPlotChart(all_info) {
     return;
   }
 
-  /********************************************************
-   * 3) Bin by xAttr
-   ********************************************************/
   function getBin(value) {
     if (isNaN(value)) return "N/A";
     const step = 5;
@@ -116,9 +106,6 @@ export function drawDistributionPlotChart(all_info) {
   }
   rowData.sort((a,b) => parseBin(a.bin) - parseBin(b.bin));
 
-  /********************************************************
-   * 4) scales & stack
-   ********************************************************/
   const xScale = d3.scaleBand()
     .domain(rowData.map(d => d.bin))
     .range([0, width])
@@ -142,9 +129,6 @@ export function drawDistributionPlotChart(all_info) {
     .y1(d => yScale(d[1]))
     .curve(d3.curveCardinal);
 
-  /********************************************************
-   * 5) draw dis
-   ********************************************************/
   const layerPaths = g.selectAll(".layer")
     .data(series)
     .enter()
@@ -155,9 +139,6 @@ export function drawDistributionPlotChart(all_info) {
     .attr("stroke", "none")
     .attr("d", areaGen);
 
-  /********************************************************
-   * 6) axis
-   ********************************************************/
   const xAxis = g.append("g")
     .attr("transform", `translate(0,${height})`)
     .call(d3.axisBottom(xScale).tickFormat(shortBinLabel));
@@ -182,9 +163,6 @@ export function drawDistributionPlotChart(all_info) {
     .style("font-size", "24px")
     .text("Count");
 
-  /********************************************************
-   * 7) Tooltip + [RED LINE]
-   ********************************************************/
   let tooltip = d3.select("body").select(".tooltip");
   if (tooltip.empty()) {
     tooltip = d3.select("body").append("div")
@@ -211,10 +189,6 @@ export function drawDistributionPlotChart(all_info) {
     .attr("fill", "red")
     .style("opacity", 0);
 
-  function handleDiseaseClick(diseaseName) {
-    window.selectDiseaseInDropdown(all_info, diseaseName);
-  }
-
   layerPaths
     .on("mouseover", function(evt, dStack) {
       g.selectAll(".layer")
@@ -226,7 +200,6 @@ export function drawDistributionPlotChart(all_info) {
     })
     .on("mousemove", function(evt, dStack) {
       const [mx, my] = d3.pointer(evt, this);
-
       const bandWidth = xScale.bandwidth() + xScale.step() * xScale.paddingInner();
       const binIndex = Math.floor(mx / bandWidth + 0.5);
       if (binIndex < 0 || binIndex >= rowData.length) {
@@ -274,12 +247,8 @@ export function drawDistributionPlotChart(all_info) {
       guideCircle.style("opacity", 0);
     })
     .on("click", function(evt, dStack) {
-      handleDiseaseClick(dStack.key);
+      selectDiseaseViaPlot(all_info, dStack.key);
     });
-
-  /********************************************************
-   * 8) Legend & Single Disease Summary
-   ********************************************************/
 
   if (isSingleDisease && allDiseases.length === 1) {
     const diseaseName = allDiseases[0];
@@ -298,16 +267,17 @@ export function drawDistributionPlotChart(all_info) {
 
     comment.html(`
       <p>
-        <strong>Disease:</strong> ${diseaseName}<br/>
-        <strong>Total samples:</strong> ${n}<br/>
-        <strong>X-axis (${xAttr}):</strong> 
-          min = ${minX.toFixed(2)},
-          max = ${maxX.toFixed(2)},
-          avg = ${meanX.toFixed(2)}<br/>
-        <strong>Count across bins:</strong>
-          min = ${minCount},
-          max = ${maxCount},
-          avg = ${avgCount.toFixed(2)}
+        The current disease is ${diseaseName}
+        with <strong>${n}</strong> total samples.<br/>
+        About the ${xAttr},
+          the minimun count is <strong>${minX.toFixed(2)}</strong>,
+          the maximun count is <strong>${maxX.toFixed(2)}</strong>,
+          and the average count is about <strong>${meanX.toFixed(2)}</strong>.
+          <br/>
+        The count across bins shows,
+          the minimun count is <strong>${minCount}</strong>,
+          the maximun count is <strong>${maxCount}</strong>,
+          and the average count is about <strong>${avgCount.toFixed(2)}</strong>.
       </p>
     `);
 
@@ -321,12 +291,14 @@ export function drawDistributionPlotChart(all_info) {
     `);
 
   } else {
-    const usedFreqMap = d3.rollup(usedData, v => v.length, d => d.dx);
-    const usedFreqArr = Array.from(usedFreqMap, ([dx, c]) => ({dx, c}))
+    const usedFreqMap2 = d3.rollup(usedData, v => v.length, d => d.dx);
+    const usedFreqArr = Array.from(usedFreqMap2, ([dx, c]) => ({dx, c}))
       .sort((a,b) => d3.descending(a.c, b.c));
-    const top5Used = usedFreqArr.slice(0,5).map(d => d.dx);
+    const top5Used = usedFreqArr.slice(0,5);
 
-    top5Used.forEach(dz => {
+    top5Used.forEach(obj => {
+      const dz = obj.dx;
+      const count = obj.c;  
       legend.append("li")
         .datum(dz)
         .html(`
@@ -334,8 +306,8 @@ export function drawDistributionPlotChart(all_info) {
             style="display:inline-block; width:12px; height:12px;
                    background-color:${diseaseColorMap.get(dz) || "#ccc"};
                    margin-right:5px;">
-          </span>
-          ${dz}
+          </span> 
+          ${dz} <em>(${count})</em>
         `)
         .on("mouseover", () => {
           g.selectAll(".layer")
@@ -346,7 +318,7 @@ export function drawDistributionPlotChart(all_info) {
           g.selectAll(".layer")
             .transition().duration(100)
             .style("opacity", 0.8);
-        })
+        });
     });
   }
 }

@@ -710,7 +710,7 @@ document.addEventListener("click", function(event) {
     }
 });
 
-function selectDiseaseViaPlot(all_info, diseaseName) {
+export function selectDiseaseViaPlot(all_info, diseaseName) {
     all_info.filter_info.disease = diseaseName;
     filterDiseases(all_info);
     updateFilterButton(all_info);

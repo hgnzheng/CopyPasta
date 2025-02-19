@@ -375,19 +375,16 @@ function filterAxis(all_info) {
             draw(all_info);
         });
 
-    all_info.other_info.axisList.forEach(function(axis) {
-        if (axis !== "bmi") {
-            ySelect.append("option")
+    all_info.other_info.axisList.forEach(function(axis, idx) {
+        let option = ySelect.append("option")
             .attr("value", axis)
-            .text(title(axis));
-        } else {
-            ySelect.append("option")
-            .attr("value", axis)
-            .text(axis.toUpperCase());
+            .text(axis !== "bmi" ? title(axis) : axis.toUpperCase());
+        if (idx === 1) {
+            option.property("selected", true);
         }
     });
 
-    all_info.plot_info.y_label = all_info.other_info.axisList[0];
+    all_info.plot_info.y_label = all_info.other_info.axisList[1];
 }
 
 function updateFilteredDiseasesList(all_info) {

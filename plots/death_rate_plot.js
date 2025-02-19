@@ -28,6 +28,8 @@ function createBins(data, xVar, binCount = 10) {
  *
  * Modification: When no disease is selected, only the top k diseases with a positive
  * average death rate will be displayed. The legend label is updated accordingly.
+ * Additionally, if fewer than k diseases are displayed, an "Other" legend item
+ * with a 0.0 death rate is added.
  */
 export function drawDeathRateChart(all_info) {
     const svg = all_info.plot_info.plotContainer;
@@ -133,9 +135,11 @@ export function drawDeathRateChart(all_info) {
         aggregatedData = aggregatedData.filter(d => topDiseases.includes(d.dx));
 
         // 6) Update the legend label text to reflect the actual number of diseases shown
-        all_info.plot_info.legendLabel.text(
-            `Top ${actualCount} Diseases:`
-        );
+        all_info.plot_info.legendLabel.text(`Top ${actualCount} Diseases:`);
+
+        // 7) Save these values for later use when building the legend
+        all_info.plot_info.actualCount = actualCount;
+        all_info.plot_info.top_k_value = k;
     }
 
     // Build scales for the x and y axes
@@ -159,7 +163,6 @@ export function drawDeathRateChart(all_info) {
         .style("font-size", "20px");
 
     // Axis labels with increased font size
-
     if (all_info.plot_info.x_label) {
         let xVar = title(all_info.plot_info.x_label);
         let xLabel = title(xVar);
@@ -187,7 +190,7 @@ export function drawDeathRateChart(all_info) {
         .attr("x", -margin.top + 20)
         .attr("text-anchor", "end")
         .style("font-size", "24px")
-        .text(title("Death Rate (%)")); // Add the unit of the death rate if desired
+        .text(title("Death Rate (%)"));
 
     // Prepare the line generator and color scale
     let dataByDx = d3.groups(aggregatedData, d => d.dx);
@@ -253,9 +256,9 @@ export function drawDeathRateChart(all_info) {
 
         // Larger invisible circle for easier hovering
         markers.append("circle")
-            .attr("r", 10)                // bigger radius for hover
-            .attr("fill", "transparent")  // invisible
-            .style("pointer-events", "all") // ensure it captures mouse events
+            .attr("r", 10)
+            .attr("fill", "transparent")
+            .style("pointer-events", "all")
             .on("mouseover", function(event, d) {
                 tooltip.style("display", "block")
                     .html(`
@@ -302,12 +305,20 @@ export function drawDeathRateChart(all_info) {
         const totalCount  = d3.sum(values, d => d.count);
         const weightedAvg = totalDeaths / totalCount;
     
-        // Build the legend item text with the total count
+        // Build the legend item text with the weighted average death rate
         legend.append("li")
             .attr("style", `--color: ${colorScale(dx)}`)
             .html(`<span class="swatch"></span> ${dx} <em>(${(weightedAvg * 100).toFixed(2)}%)</em>`)
             .datum(dx);
     });
+
+    // If fewer than k diseases were displayed, add "Other" with 0.0 death rate
+    if (!all_info.filter_info.disease && all_info.plot_info.actualCount < all_info.plot_info.top_k_value) {
+        legend.append("li")
+            .attr("style", `--color: gray`)
+            .html(`<span class="swatch" style="background: gray"></span> Other <em>(0.00%)</em>`)
+            .datum("Other");
+    }
 
     // Display a summary if a single disease is selected
     if (all_info.filter_info.disease) {
@@ -320,10 +331,8 @@ export function drawDeathRateChart(all_info) {
             const totalDeaths = d3.sum(diseaseData, d => d.death_inhosp * d.count);
             const totalCount  = d3.sum(diseaseData, d => d.count);
             const meanDeath   = totalDeaths / totalCount;
-            // Sum of counts across bins for total data points
             const totalPoints = d3.sum(diseaseData, d => d.count);
 
-            // Format summary with line breaks
             const summaryHtml = `
                 <strong>Disease:</strong> ${all_info.filter_info.disease}<br>
                 <strong>Minimum Death Rate:</strong> ${minDeath.toFixed(2)}<br>
@@ -331,8 +340,6 @@ export function drawDeathRateChart(all_info) {
                 <strong>Average Death Rate:</strong> ${meanDeath.toFixed(2)}<br>
                 <strong>Total Points:</strong> ${totalPoints}
             `;
-
-            // Use .html() so <br> tags create new lines
             all_info.plot_info.commentContainer.html(summaryHtml);
         } else {
             all_info.plot_info.commentContainer.text(

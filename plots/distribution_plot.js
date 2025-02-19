@@ -252,7 +252,7 @@ export function drawDistributionPlotChart(all_info) {
         .style("top",  (evt.pageY - 15) + "px")
         .html(`
           <strong>${disease}</strong><br>
-          ≈ <b>${shortBinLabel(binName)}</b> ${xAttr}, count = <b>${countVal}</b>.
+          ~ <b>${shortBinLabel(binName)}</b> ${xAttr}, count = <b>${countVal}</b>.
         `);
     })
     .on("mouseout", function() {

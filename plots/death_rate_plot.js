@@ -107,13 +107,23 @@ export function drawDeathRateChart(all_info) {
 
     // If no specific disease is selected, keep only the top 5 diseases by avg death_inhosp
     if (!all_info.filter_info.disease) {
+        // 1) Group aggregatedData by disease
         const diseaseGroups = d3.group(aggregatedData, d => d.dx);
-        const top5Diseases = Array.from(diseaseGroups.entries())
-            .map(([dx, arr]) => ({ dx, avg: d3.mean(arr, d => d.death_inhosp) }))
-            .sort((a, b) => d3.descending(a.avg, b.avg))
-            .slice(0, 5)
-            .map(d => d.dx);
 
+        // 2) Compute average death rate for each disease, then sort descending
+        const sortedByAvg = Array.from(diseaseGroups.entries())
+        .map(([dx, arr]) => {
+            const totalDeaths = d3.sum(arr, d => d.death_inhosp * d.count);
+            const totalCount  = d3.sum(arr, d => d.count);
+            const weightedAvg = totalDeaths / totalCount; // Weighted average
+            return { dx, avg: weightedAvg };
+        })
+        .sort((a, b) => d3.descending(a.avg, b.avg));
+
+        // 3) Take the top 5 diseases
+        const top5Diseases = sortedByAvg.slice(0, 5).map(d => d.dx);
+
+        // 4) Filter aggregatedData to keep only top 5
         aggregatedData = aggregatedData.filter(d => top5Diseases.includes(d.dx));
     }
 
@@ -136,6 +146,8 @@ export function drawDeathRateChart(all_info) {
         .selectAll("text")
         .style("font-size", "20px");
 
+    
+
     // Axis labels with increased font size
     if (all_info.plot_info.x_label) {
         g.append("text")
@@ -154,7 +166,18 @@ export function drawDeathRateChart(all_info) {
         .text("Death Rate (%)"); // TODO EDITED add the unit of the death rate
 
     // Prepare the line generator and color scale
-    const dataByDx = d3.groups(aggregatedData, d => d.dx);
+    let dataByDx = d3.groups(aggregatedData, d => d.dx);
+    dataByDx.sort((a, b) => {
+        const totalDeathsA = d3.sum(a[1], d => d.death_inhosp * d.count);
+        const totalCountA  = d3.sum(a[1], d => d.count);
+        const weightedAvgA = totalDeathsA / totalCountA;
+
+        const totalDeathsB = d3.sum(b[1], d => d.death_inhosp * d.count);
+        const totalCountB  = d3.sum(b[1], d => d.count);
+        const weightedAvgB = totalDeathsB / totalCountB;
+
+        return d3.descending(weightedAvgA, weightedAvgB);
+    });
     const colorScale = d3.scaleOrdinal(d3.schemeCategory10)
         .domain(dataByDx.map(d => d[0]));
     const lineGen = d3.line()
@@ -251,12 +274,14 @@ export function drawDeathRateChart(all_info) {
     legend.selectAll("*").remove();
     dataByDx.forEach(([dx, values]) => {
         // Sum the counts for this disease
-        const totalCount = d3.sum(values, d => d.count); // TODO NEED CHANGE 显示percentage吧会不会更好我觉得，毕竟是death rate
+        const totalDeaths = d3.sum(values, d => d.death_inhosp * d.count);
+        const totalCount  = d3.sum(values, d => d.count);
+        const weightedAvg = totalDeaths / totalCount;
     
         // Build the legend item text with the total count
         legend.append("li")
             .attr("style", `--color: ${colorScale(dx)}`)
-            .html(`<span class="swatch"></span> ${dx} <em>(${totalCount})</em>`) // TODO EDITED, scatter那边按照这个来
+            .html(`<span class="swatch"></span> ${dx} <em>(${(weightedAvg * 100).toFixed(2)}%)</em>`) // TODO EDITED, scatter那边按照这个来
             .datum(dx); // TODO EDITED add datum for selection
     });
 
@@ -268,7 +293,9 @@ export function drawDeathRateChart(all_info) {
         if (diseaseData.length > 0) {
             const minDeath = d3.min(diseaseData, d => d.death_inhosp);
             const maxDeath = d3.max(diseaseData, d => d.death_inhosp);
-            const meanDeath = d3.mean(diseaseData, d => d.death_inhosp);
+            const totalDeaths = d3.sum(diseaseData, d => d.death_inhosp * d.count);
+            const totalCount  = d3.sum(diseaseData, d => d.count);
+            const meanDeath   = totalDeaths / totalCount;
             // Sum of counts across bins for total data points
             const totalPoints = d3.sum(diseaseData, d => d.count);
 

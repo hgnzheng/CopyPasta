@@ -112,6 +112,7 @@ export function drawScatterPlotChart(all_info) {
     xAxis.selectAll("text").style("font-size", "20px");
 
     const yAxis = g.append("g")
+        .attr("transform", "translate(10,0)") 
         .call(d3.axisLeft(yScale));
     yAxis.selectAll("text").style("font-size", "20px");
 
@@ -149,7 +150,7 @@ export function drawScatterPlotChart(all_info) {
 
     g.append("text")
         .attr("transform", "rotate(-90)")
-        .attr("y", -margin.left + 15)
+        .attr("y", -margin.left + 20)
         .attr("x", -margin.top)
         .attr("text-anchor", "end")
         .style("font-size", "24px")
@@ -204,7 +205,6 @@ export function drawScatterPlotChart(all_info) {
                     <strong>Age:</strong> ${d.age}<br>
                     <strong>Sex:</strong> ${d.sex}<br>
                     <strong>BMI:</strong> ${d.bmi}<br>
-                    <strong>Death Rate:</strong> ${d.death_inhosp}
                 `);
             })
             .on("mousemove", function(event) {
@@ -237,7 +237,6 @@ export function drawScatterPlotChart(all_info) {
                     <strong>Age:</strong> ${d.age}<br>
                     <strong>Sex:</strong> ${d.sex}<br>
                     <strong>BMI:</strong> ${d.bmi}<br>
-                    <strong>Death Rate:</strong> ${d.death_inhosp}
                 `);
             })
             .on("mousemove", function(event) {
@@ -334,11 +333,6 @@ export function drawScatterPlotChart(all_info) {
                 .attr("style", `--color:${colorScale(disease)}`)
                 .html(`<span class="swatch"></span> ${disease} <em>(${countVal})</em>`)
                 .datum(disease)
-                .on("click", function() {
-                    // Unset disease filter on click and redraw
-                    all_info.filter_info.disease = null;
-                    drawScatterPlotChart(all_info);
-                })
                 // ADDED: highlight on hover
                 .on("mouseover", function(event, hoveredDisease) {
                     // Fade out circles that do NOT match hoveredDisease
@@ -363,14 +357,10 @@ export function drawScatterPlotChart(all_info) {
             const color = group === "other" ? "#a9a9a9" : colorScale(group);
             const label = group === "other" ? "Other Diseases" : group;
 
-            legend.append("li")
+            let li = legend.append("li")
                 .attr("style", `--color:${color}`)
-                .html(`<span class="swatch"></span> ${label} (${countVal})`)
+                .html(`<span class="swatch"></span> ${label} <em>(${countVal})</em>`)
                 .datum(group)
-                .on("click", function() {
-                    // For demonstration, just log it
-                    console.log("Clicked disease group:", group);
-                })
                 // ADDED: highlight on hover
                 .on("mouseover", function(event, hoveredGroup) {
                     g.selectAll("circle")
@@ -388,6 +378,10 @@ export function drawScatterPlotChart(all_info) {
                         .transition().duration(100)
                         .style("opacity", 1);
                 });
+
+            if (group === "other") {
+                li.attr("class", "other");
+            }
         });
     }
 }

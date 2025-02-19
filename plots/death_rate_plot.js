@@ -26,11 +26,8 @@ function createBins(data, xVar, binCount = 10) {
  * It bins the data, groups by (dx, x_bin), computes the mean death rate,
  * and adds interactive tooltips and a vertical reference line if provided.
  *
- * Modification #1: When no disease is selected, only the top 5 diseases
- * (by highest average death rate) are displayed.
- *
- * Modification #2: Uses a small visible circle plus a larger invisible
- * "hover" circle so that hovering for the tooltip is easier.
+ * Modification: When no disease is selected, only the top k diseases with a positive
+ * average death rate will be displayed. The legend label is updated accordingly.
  */
 export function drawDeathRateChart(all_info) {
     const svg = all_info.plot_info.plotContainer;
@@ -106,26 +103,39 @@ export function drawDeathRateChart(all_info) {
         }
     }
 
-    // If no specific disease is selected, keep only the top 5 diseases by avg death_inhosp
+    // If no specific disease is selected, filter to keep only the top k diseases with positive average death_inhosp
     if (!all_info.filter_info.disease) {
+        // Use a parameter k if provided, otherwise default to 5
+        const k = all_info.plot_info.top_k || 5;
+    
         // 1) Group aggregatedData by disease
         const diseaseGroups = d3.group(aggregatedData, d => d.dx);
 
-        // 2) Compute average death rate for each disease, then sort descending
+        // 2) Compute weighted average death rate for each disease,
+        //    filter to keep only those with positive averages, then sort descending
         const sortedByAvg = Array.from(diseaseGroups.entries())
-        .map(([dx, arr]) => {
-            const totalDeaths = d3.sum(arr, d => d.death_inhosp * d.count);
-            const totalCount  = d3.sum(arr, d => d.count);
-            const weightedAvg = totalDeaths / totalCount; // Weighted average
-            return { dx, avg: weightedAvg };
-        })
-        .sort((a, b) => d3.descending(a.avg, b.avg));
+            .map(([dx, arr]) => {
+                const totalDeaths = d3.sum(arr, d => d.death_inhosp * d.count);
+                const totalCount  = d3.sum(arr, d => d.count);
+                const weightedAvg = totalDeaths / totalCount;
+                return { dx, avg: weightedAvg };
+            })
+            .filter(d => d.avg > 0)
+            .sort((a, b) => d3.descending(a.avg, b.avg));
 
-        // 3) Take the top 5 diseases
-        const top5Diseases = sortedByAvg.slice(0, 5).map(d => d.dx);
+        // 3) Determine how many diseases we can actually show (some might be fewer than k)
+        const actualCount = Math.min(sortedByAvg.length, k);
 
-        // 4) Filter aggregatedData to keep only top 5
-        aggregatedData = aggregatedData.filter(d => top5Diseases.includes(d.dx));
+        // 4) Slice out the top `actualCount` diseases
+        const topDiseases = sortedByAvg.slice(0, actualCount).map(d => d.dx);
+
+        // 5) Filter aggregatedData to keep only these top diseases
+        aggregatedData = aggregatedData.filter(d => topDiseases.includes(d.dx));
+
+        // 6) Update the legend label text to reflect the actual number of diseases shown
+        all_info.plot_info.legendLabel.text(
+            `Top ${actualCount} Diseases:`
+        );
     }
 
     // Build scales for the x and y axes
@@ -143,11 +153,10 @@ export function drawDeathRateChart(all_info) {
         .style("font-size", "20px");
 
     g.append("g")
+        .attr("transform", "translate(10,0)") 
         .call(d3.axisLeft(yScale))
         .selectAll("text")
         .style("font-size", "20px");
-
-    
 
     // Axis labels with increased font size
 
@@ -174,11 +183,11 @@ export function drawDeathRateChart(all_info) {
     }
     g.append("text")
         .attr("transform", "rotate(-90)")
-        .attr("y", -margin.left + 15)
-        .attr("x", -margin.top)
+        .attr("y", -margin.left + 20)
+        .attr("x", -margin.top + 20)
         .attr("text-anchor", "end")
         .style("font-size", "24px")
-        .text(title("Death Rate (%)")); // TODO EDITED add the unit of the death rate
+        .text(title("Death Rate (%)")); // Add the unit of the death rate if desired
 
     // Prepare the line generator and color scale
     let dataByDx = d3.groups(aggregatedData, d => d.dx);
@@ -251,9 +260,9 @@ export function drawDeathRateChart(all_info) {
                 tooltip.style("display", "block")
                     .html(`
                         <strong>Disease:</strong> ${d.dx}<br>
-                        <strong>x range:</strong> ${d.x_bin[0].toFixed(2)} - ${d.x_bin[1].toFixed(2)}<br>
-                        <strong>Mean Death Rate:</strong> ${d.death_inhosp.toFixed(2)}<br>
-                        <strong>Count:</strong> ${d.count}
+                        <strong>X range:</strong> ${d.x_bin[0].toFixed(2)} - ${d.x_bin[1].toFixed(2)}<br>
+                        <strong>Mean Death Rate:</strong> ${d.death_inhosp.toFixed(2)}%<br>
+                        <strong>Total Count:</strong> ${d.count}
                     `);
             })
             .on("mousemove", function(event) {
@@ -296,8 +305,8 @@ export function drawDeathRateChart(all_info) {
         // Build the legend item text with the total count
         legend.append("li")
             .attr("style", `--color: ${colorScale(dx)}`)
-            .html(`<span class="swatch"></span> ${dx} <em>(${(weightedAvg * 100).toFixed(2)}%)</em>`) // TODO EDITED, scatter那边按照这个来
-            .datum(dx); // TODO EDITED add datum for selection
+            .html(`<span class="swatch"></span> ${dx} <em>(${(weightedAvg * 100).toFixed(2)}%)</em>`)
+            .datum(dx);
     });
 
     // Display a summary if a single disease is selected

@@ -35,7 +35,7 @@ export function drawDeathRateChart(all_info) {
     const svg = all_info.plot_info.plotContainer;
     const svgWidth = +svg.attr("width");
     const svgHeight = +svg.attr("height");
-    const margin = { top: 20, right: 30, bottom: 50, left: 60 };
+    const margin = { top: 20, right: 30, bottom: 60, left: 90 };
     const width = svgWidth - margin.left - margin.right;
     const height = svgHeight - margin.top - margin.bottom;
 
@@ -157,7 +157,6 @@ export function drawDeathRateChart(all_info) {
         .style("font-size", "20px");
 
     g.append("g")
-        .attr("transform", "translate(10,0)") 
         .call(d3.axisLeft(yScale))
         .selectAll("text")
         .style("font-size", "20px");

@@ -176,8 +176,8 @@ export function drawDistributionPlotChart(all_info) {
 
   g.append("text")
     .attr("transform", "rotate(-90)")
-    .attr("y", -margin.left + 20)
-    .attr("x", -margin.top + 60)
+    .attr("y", -margin.left + 16)
+    .attr("x", -margin.top + 70)
     .attr("text-anchor", "end")
     .style("font-size", "24px")
     .text("Count");

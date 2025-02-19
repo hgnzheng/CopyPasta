@@ -6,11 +6,43 @@
     <link rel="stylesheet" type="text/css" href="../style.css">
     <title>Project 3 Writeup</title>
 </head>
+<body>
     <h1>Project 3 Writeup</h1>
     <div class="writeup">
-        <p> </p>
+        <p>
+            <strong>MOTIVATION & PURPOSE</strong><br>
+            This interactive visualization is primarily designed for hospital administrators, clinicians, and healthcare researchers who want to better understand how surgical outcomes correlate with key patient characteristics such as age, height, weight, and BMI. By linking these physical variables to disease occurrences and in-hospital death rates, stakeholders can identify demographic patterns, allocate resources more effectively, and develop research hypotheses regarding at-risk populations. Additionally, data analysts and policymakers may find value in studying the aggregated trends and using this interface to monitor potential disparities or to evaluate departmental performance.
+        </p>
+
+        <p>
+            <strong>VISUALIZATION OVERVIEW & INTERACTIVE FEATURES</strong><br>
+            The project’s single-page design, implemented through D3.js, offers multiple coordinated visualization components driven by a shared global filtering state. Upon selection of any combination of department, sex, and disease, the application dynamically updates four distinct visualizations: Distribution, Death Rate, Physical Condition (scatter plot), and Percentage in Department. The Distribution View uses a stacked density (ridgeline-style) representation to show how frequently diseases occur across a binned numeric variable. A Death Rate View highlights how in-hospital mortality changes with different values of age, height, weight, or BMI, focusing on the top five diseases with the highest average mortality if no specific disease has been chosen. The Physical Condition View provides a scatter plot that either highlights a single disease across multiple cases or color-codes up to five top diseases when no specific disease is selected. Finally, the Percentage in Department View offers a pie chart illustrating the proportion of a particular disease within selected departments, split further by sex whenever relevant. By hovering over these charts, users can see additional tooltips with contextual details, enabling a more nuanced understanding of patterns.
+        </p>
+
+        <p>
+            <strong>DESIGN RATIONALE</strong><br>
+            We chose these visualization types to emphasize the most critical insights needed in a medical context. The Distribution View’s stacked density plot allows straightforward comparison of multiple diseases against one continuous variable, such as BMI. The Death Rate View employs binned line charts to illuminate how mortality rates vary by these continuous variables, making it particularly straightforward for identifying which segments (e.g., older patients or higher BMI ranges) face elevated in-hospital death risk. The Physical Condition scatter plot reveals pairwise relationships between any two of the four main variables and helps compare how different diseases cluster within that space. Meanwhile, the Pie Chart offers a department-level perspective, making it easier to see whether a disease consumes a small or large fraction of a department’s overall caseload. Across these different views, we used consistent color-coding to facilitate quick recognition and cross-comparison of diseases. We also paid particular attention to tooltips and click interactions, so users can select a disease from the charts themselves rather than searching in a menu, thereby streamlining exploratory workflows.
+        </p>
+
+        <p>
+            <strong>DETAILED CODE & INTERACTION LOGIC</strong><br>
+            The backbone of this application is <em>global.js</em>, which manages data loading, filtering logic, and state variables for the user’s selections. Whenever filters for department, sex, or disease change, <em>global.js</em> instructs each visualization module to update. In the Distribution View, <em>distribution_plot.js</em> organizes the data by bins (e.g., five-year increments for age) and stacks the counts of different diseases, allowing for a ridgeline-like visualization. Meanwhile, <em>death_rate_plot.js</em> bins the chosen continuous variable into ten equal ranges, aggregates in-hospital mortality rates, and plots separate lines for each disease. This approach highlights how these death rates evolve with age, weight, height, or BMI. The <em>scatter_plot.js</em> file contains the logic for plotting either a single disease (one point per individual) or multiple diseases (emphasizing the top five in bright colors and aggregating others as “other”). Lastly, <em>pie_plot.js</em> focuses on a single disease’s share within one or more departments; if the user has selected multiple departments, the resulting slices reflect the combined caseload from all of them. In each of these files, careful design choices were made to provide intuitive hover effects—such as guidelines, circles, and tooltips—so that users can gather specific numeric details without cluttering the main visualization.
+        </p>
+
+        <p>
+            <strong>DATA PREPROCESSING</strong><br>
+            Prior to rendering, we cleaned and standardized the surgical dataset by merging diagnoses that were effectively the same condition under different names. We also excluded diagnoses appearing fewer than ten times to avoid unstable estimates or misleading visuals. After these steps, we made sure that key attributes like age, weight, height, and BMI were converted into numeric form. As a result, each D3 chart can compute bins, means, and sums accurately, ensuring the reliability of the displayed patterns.
+        </p>
+
+        <p>
+            <strong>DEVELOPMENT PROCESS</strong><br>
+            We coordinated our efforts through a shared GitHub repository, where pull requests and issue tracking helped each team member integrate or debug features in a controlled manner. Kaijie Zhang and Rihui Ling handled the initial setup of the webpage, building the underlying structure for the filtering interactions and implementing both the Distribution and Death Rate charts. Hargen Zheng expanded upon the filter logic to allow for different chart modes and designed the scatter plot’s two-mode system—one that shows individual data points when a specific disease is selected and another that color-codes top diseases if no disease is chosen. Finally, Minghan Wu focused on data preprocessing steps, creating standardized disease labels and removing statistically insignificant disease instances, as well as contributing to performance optimizations so that the interface remains responsive even for larger datasets. Throughout, we spent roughly seventy to eighty person-hours, with significant time devoted to tuning the dynamic behaviors of the ridgeline, line charts, and tooltips to ensure a coherent, user-friendly experience.
+        </p>
+
+        <p>
+            <strong>MAIN TAKEAWAYS & POTENTIAL USE CASES</strong><br>
+            By offering a clear and interactive environment to explore relationships between diseases, patient characteristics, and surgical outcomes, this visualization can provide actionable intelligence to a wide variety of healthcare stakeholders. Hospital administrators can swiftly identify which demographic segments might have disproportionately high risk profiles and allocate resources (e.g., specialized staff or equipment) accordingly. Clinicians can form new hypotheses around how certain attributes—such as BMI ranges—may be associated with higher post-surgical complications for particular diseases, ultimately guiding preventive measures. Researchers stand to benefit from the immediate visual feedback in generating or refining hypotheses on disease risk factors, perhaps spurring more targeted follow-up studies. Looking ahead, we plan to enrich the user interface with multi-factor queries and more specialized binning options to handle edge cases (like extremely advanced ages or rare diseases) while still providing an efficient, streamlined experience for general users.
+        </p>
     </div>
-<body>
-    
 </body>
 </html>

@@ -11,7 +11,7 @@ const plotKindValueList = ["distribution", "deathRate", "scatterPlot", "piePlot"
 const plotKindNeedAbleList = ["piePlot"]
 
 
-function title(s) {
+export function title(s) {
     return s.charAt(0).toUpperCase() + s.slice(1);
 }
 

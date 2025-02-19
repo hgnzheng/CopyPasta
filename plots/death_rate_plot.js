@@ -1,5 +1,6 @@
 /* death_rate_plot.js */
 import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7.9.0/+esm";
+import { title } from "../global.js";
 
 /**
  * Helper function to create bins for any numeric axis.
@@ -149,13 +150,27 @@ export function drawDeathRateChart(all_info) {
     
 
     // Axis labels with increased font size
+
     if (all_info.plot_info.x_label) {
+        let xVar = title(all_info.plot_info.x_label);
+        let xLabel = title(xVar);
+        // Append the appropriate unit if the xVar is "height", "weight", or "bmi"
+        if (["height", "weight", "bmi"].includes(xVar.toLowerCase())) {
+            if (xVar.toLowerCase() === "height") {
+                xLabel += " (cm)"; // assuming height is measured in centimeters
+            } else if (xVar.toLowerCase() === "weight") {
+                xLabel += " (kg)"; // assuming weight is in kilograms
+            } else if (xVar.toLowerCase() === "bmi") {
+                xLabel = xLabel.toUpperCase(); // BMI is usually in uppercase
+                xLabel += " (kg/m²)"; // standard unit for BMI
+            }
+        }
         g.append("text")
             .attr("x", width)
             .attr("y", height + margin.bottom - 10)
             .attr("text-anchor", "end")
             .style("font-size", "24px")
-            .text(all_info.plot_info.x_label);
+            .text(xLabel);
     }
     g.append("text")
         .attr("transform", "rotate(-90)")
@@ -163,7 +178,7 @@ export function drawDeathRateChart(all_info) {
         .attr("x", -margin.top)
         .attr("text-anchor", "end")
         .style("font-size", "24px")
-        .text("Death Rate (%)"); // TODO EDITED add the unit of the death rate
+        .text(title("Death Rate (%)")); // TODO EDITED add the unit of the death rate
 
     // Prepare the line generator and color scale
     let dataByDx = d3.groups(aggregatedData, d => d.dx);

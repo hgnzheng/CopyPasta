@@ -1,4 +1,5 @@
 import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7.9.0/+esm";
+import { title } from "../global.js"
 
 /**
  * Draws a scatter plot with two modes:
@@ -92,12 +93,37 @@ export function drawScatterPlotChart(all_info) {
     yAxis.selectAll("text").style("font-size", "20px");
 
     // Axis labels with larger font sizes
+    let xLabel = title(xVar);
+    // Append the appropriate unit if the xVar is "height", "weight", or "bmi"
+    if (["height", "weight", "bmi"].includes(xVar.toLowerCase())) {
+        if (xVar.toLowerCase() === "height") {
+            xLabel += " (cm)"; // assuming height is measured in centimeters
+        } else if (xVar.toLowerCase() === "weight") {
+            xLabel += " (kg)"; // assuming weight is in kilograms
+        } else if (xVar.toLowerCase() === "bmi") {
+            xLabel = xLabel.toUpperCase(); // BMI is usually in uppercase
+            xLabel += " (kg/m²)"; // standard unit for BMI
+        }
+    }
+    // Axis labels with larger font sizes
+    let yLabel = title(yVar);
+    // Append the appropriate unit if the xVar is "height", "weight", or "bmi"
+    if (["height", "weight", "bmi"].includes(yVar.toLowerCase())) {
+        if (yVar.toLowerCase() === "height") {
+            yLabel += " (cm)"; // assuming height is measured in centimeters
+        } else if (yVar.toLowerCase() === "weight") {
+            yLabel += " (kg)"; // assuming weight is in kilograms
+        } else if (yVar.toLowerCase() === "bmi") {
+            yLabel = yLabel.toUpperCase(); // BMI is usually in uppercase
+            yLabel += " (kg/m²)"; // standard unit for BMI
+        }
+    }
     g.append("text")
         .attr("x", width)
         .attr("y", height + margin.bottom - 10)
         .attr("text-anchor", "end")
         .style("font-size", "24px")   // Increased from 16px
-        .text(xVar);
+        .text(xLabel);
 
     g.append("text")
         .attr("transform", "rotate(-90)")
@@ -105,7 +131,7 @@ export function drawScatterPlotChart(all_info) {
         .attr("x", -margin.top)
         .attr("text-anchor", "end")
         .style("font-size", "24px")   // Increased from 16px
-        .text(yVar);
+        .text(yLabel);
 
     // Tooltip
     let tooltip = d3.select("body").select(".tooltip");

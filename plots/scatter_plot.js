@@ -180,8 +180,7 @@ export function drawScatterPlotChart(all_info) {
     // =========================
     if (!all_info.filter_info.disease) {
         // --- No disease selected ---
-        // We'll separate the "other" group from the top diseases so we can
-        // draw "other" first (with transparency) and then the top diseases on top.
+        // We'll separate the "other" points from the top diseases
 
         // 1) "Other" points
         const otherPoints = displayData.filter(d => d.diseaseGroup === "other");
@@ -189,7 +188,8 @@ export function drawScatterPlotChart(all_info) {
             .data(otherPoints)
             .enter()
             .append("circle")
-            .attr("class", "point-other")
+            // ADDED: add class "other" in addition to "point-other"
+            .attr("class", "point-other other") // <--- new
             .attr("cx", d => xScale(+d[xVar]))
             .attr("cy", d => yScale(+d[yVar]))
             .attr("r", circleRadius)
@@ -307,11 +307,8 @@ export function drawScatterPlotChart(all_info) {
     const legend = all_info.plot_info.legendContainer;
     legend.selectAll("*").remove();
 
-    // We'll create a map from group (or dx) to the number of datapoints
-    // This helps us display counts in the legend
     if (all_info.filter_info.disease) {
         // A disease is selected => might have multiple dx in the filtered data
-        // Build a rollup to count how many rows each disease has
         const diseaseCounts = d3.rollup(displayData, v => v.length, d => d.dx);
 
         // Summaries
@@ -335,23 +332,32 @@ export function drawScatterPlotChart(all_info) {
             const countVal = diseaseCounts.get(disease) || 0;
             legend.append("li")
                 .attr("style", `--color:${colorScale(disease)}`)
-                .html(`<span class="swatch"></span> ${disease} (${countVal})`)
+                .html(`<span class="swatch"></span> ${disease} <em>(${countVal})</em>`)
                 .datum(disease)
                 .on("click", function() {
                     // Unset disease filter on click and redraw
                     all_info.filter_info.disease = null;
                     drawScatterPlotChart(all_info);
+                })
+                // ADDED: highlight on hover
+                .on("mouseover", function(event, hoveredDisease) {
+                    // Fade out circles that do NOT match hoveredDisease
+                    g.selectAll("circle")
+                        .transition().duration(100)
+                        .style("opacity", d => (d.dx === hoveredDisease) ? 1 : 0.2);
+                })
+                .on("mouseout", function() {
+                    // Reset all circles to full opacity
+                    g.selectAll("circle")
+                        .transition().duration(100)
+                        .style("opacity", 1);
                 });
         });
     } else {
         // No disease => top 5 + "other"
-        // Count how many data points in each group
         const groupCounts = d3.rollup(displayData, v => v.length, d => d.diseaseGroup);
-
-        // Clear any summary text
         all_info.plot_info.commentContainer.text("");
 
-        // Legend for top diseases + "other"
         legendValues.forEach(group => {
             const countVal = groupCounts.get(group) || 0;
             const color = group === "other" ? "#a9a9a9" : colorScale(group);
@@ -362,8 +368,25 @@ export function drawScatterPlotChart(all_info) {
                 .html(`<span class="swatch"></span> ${label} (${countVal})`)
                 .datum(group)
                 .on("click", function() {
-                    // You can add a filter or highlight action here if desired
+                    // For demonstration, just log it
                     console.log("Clicked disease group:", group);
+                })
+                // ADDED: highlight on hover
+                .on("mouseover", function(event, hoveredGroup) {
+                    g.selectAll("circle")
+                        .transition().duration(100)
+                        .style("opacity", d => {
+                            // For "other" circles, d.diseaseGroup === "other"
+                            // For top diseases, d.diseaseGroup === actual disease name
+                            // We also have d.dx itself for the original name
+                            return (d.diseaseGroup === hoveredGroup) ? 1 : 0.2;
+                        });
+                })
+                .on("mouseout", function() {
+                    // Reset all circles to full opacity
+                    g.selectAll("circle")
+                        .transition().duration(100)
+                        .style("opacity", 1);
                 });
         });
     }

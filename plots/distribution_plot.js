@@ -163,6 +163,7 @@ export function drawDistributionPlotChart(all_info) {
   xAxis.selectAll("text").style("font-size", "20px");
 
   const yAxis = g.append("g")
+    .attr("transform", "translate(10,0)") 
     .call(d3.axisLeft(yScale));
   yAxis.selectAll("text").style("font-size", "20px");
 
@@ -175,8 +176,8 @@ export function drawDistributionPlotChart(all_info) {
 
   g.append("text")
     .attr("transform", "rotate(-90)")
-    .attr("y", -margin.left + 15)
-    .attr("x", -margin.top)
+    .attr("y", -margin.left + 20)
+    .attr("x", -margin.top + 60)
     .attr("text-anchor", "end")
     .style("font-size", "24px")
     .text("Count");

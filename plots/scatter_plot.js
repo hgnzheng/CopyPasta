@@ -112,6 +112,7 @@ export function drawScatterPlotChart(all_info) {
     xAxis.selectAll("text").style("font-size", "20px");
 
     const yAxis = g.append("g")
+        .attr("transform", "translate(10,0)") 
         .call(d3.axisLeft(yScale));
     yAxis.selectAll("text").style("font-size", "20px");
 
@@ -149,7 +150,7 @@ export function drawScatterPlotChart(all_info) {
 
     g.append("text")
         .attr("transform", "rotate(-90)")
-        .attr("y", -margin.left + 15)
+        .attr("y", -margin.left + 20)
         .attr("x", -margin.top)
         .attr("text-anchor", "end")
         .style("font-size", "24px")
@@ -204,7 +205,6 @@ export function drawScatterPlotChart(all_info) {
                     <strong>Age:</strong> ${d.age}<br>
                     <strong>Sex:</strong> ${d.sex}<br>
                     <strong>BMI:</strong> ${d.bmi}<br>
-                    <strong>Death Rate:</strong> ${d.death_inhosp}
                 `);
             })
             .on("mousemove", function(event) {
@@ -237,7 +237,6 @@ export function drawScatterPlotChart(all_info) {
                     <strong>Age:</strong> ${d.age}<br>
                     <strong>Sex:</strong> ${d.sex}<br>
                     <strong>BMI:</strong> ${d.bmi}<br>
-                    <strong>Death Rate:</strong> ${d.death_inhosp}
                 `);
             })
             .on("mousemove", function(event) {
@@ -365,7 +364,7 @@ export function drawScatterPlotChart(all_info) {
 
             legend.append("li")
                 .attr("style", `--color:${color}`)
-                .html(`<span class="swatch"></span> ${label} (${countVal})`)
+                .html(`<span class="swatch"></span> ${label} <em>(${countVal})</em>`)
                 .datum(group)
                 .on("click", function() {
                     // For demonstration, just log it

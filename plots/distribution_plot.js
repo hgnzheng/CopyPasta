@@ -7,7 +7,7 @@ export function drawDistributionPlotChart(all_info) {
   const svgWidth  = +svg.attr("width");
   const svgHeight = +svg.attr("height");
 
-  const margin = { top: 40, right: 40, bottom: 60, left: 60 };
+  const margin = { top: 20, right: 30, bottom: 60, left: 90 };
   const width  = svgWidth  - margin.left - margin.right;
   const height = svgHeight - margin.top  - margin.bottom;
 
@@ -158,12 +158,11 @@ export function drawDistributionPlotChart(all_info) {
     .attr("d", areaGen);
 
   const xAxis = g.append("g")
-    .attr("transform", `translate(25,${height})`)
+    .attr("transform", `translate(0,${height})`)
     .call(d3.axisBottom(xScale).tickFormat(shortBinLabel));
   xAxis.selectAll("text").style("font-size", "20px");
 
   const yAxis = g.append("g")
-    .attr("transform", "translate(25,0)") 
     .call(d3.axisLeft(yScale));
   yAxis.selectAll("text").style("font-size", "20px");
 
@@ -172,6 +171,7 @@ export function drawDistributionPlotChart(all_info) {
     .attr("y", height + margin.bottom - 10)
     .attr("text-anchor", "end")
     .style("font-size", "24px")
+    .style("stroke", "#2c4ca0")
     .text(xLabel);
 
   g.append("text")
@@ -180,6 +180,7 @@ export function drawDistributionPlotChart(all_info) {
     .attr("x", -margin.top + 20)
     .attr("text-anchor", "end")
     .style("font-size", "24px")
+    .style("stroke", "#2c4ca0")
     .text("Count");
 
   let tooltip = d3.select("body").select(".tooltip");

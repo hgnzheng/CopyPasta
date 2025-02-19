@@ -14,7 +14,7 @@ export function drawScatterPlotChart(all_info) {
     const svgWidth  = +svg.attr("width");
     const svgHeight = +svg.attr("height");
 
-    const margin = { top: 20, right: 30, bottom: 50, left: 60 };
+    const margin = { top: 20, right: 30, bottom: 60, left: 90 };
     const width  = svgWidth  - margin.left - margin.right;
     const height = svgHeight - margin.top  - margin.bottom;
 
@@ -107,12 +107,11 @@ export function drawScatterPlotChart(all_info) {
     // Draw axes with bigger text
     // =========================
     const xAxis = g.append("g")
-        .attr("transform", `translate(25,${height})`)
+        .attr("transform", `translate(0,${height})`)
         .call(d3.axisBottom(xScale));
     xAxis.selectAll("text").style("font-size", "20px");
 
     const yAxis = g.append("g")
-        .attr("transform", "translate(25,0)") 
         .call(d3.axisLeft(yScale));
     yAxis.selectAll("text").style("font-size", "20px");
 

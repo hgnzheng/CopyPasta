@@ -361,10 +361,6 @@ export function drawScatterPlotChart(all_info) {
                 .attr("style", `--color:${color}`)
                 .html(`<span class="swatch"></span> ${label} <em>(${countVal})</em>`)
                 .datum(group)
-                .on("click", function() {
-                    // For demonstration, just log it
-                    console.log("Clicked disease group:", group);
-                })
                 // ADDED: highlight on hover
                 .on("mouseover", function(event, hoveredGroup) {
                     g.selectAll("circle")

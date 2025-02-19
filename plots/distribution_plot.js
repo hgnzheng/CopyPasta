@@ -1,5 +1,6 @@
 import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7.9.0/+esm";
 import { selectDiseaseViaPlot } from "../global.js";
+import { title } from "../global.js";
 
 export function drawDistributionPlotChart(all_info) {
   const svg = all_info.plot_info.plotContainer;
@@ -16,7 +17,24 @@ export function drawDistributionPlotChart(all_info) {
 
   const dataAll = all_info.plot_info.filteredAllData;
   const dataDx  = all_info.plot_info.filteredData;
-  const xAttr   = all_info.plot_info.x_label || "bmi";
+
+
+  const xAttr = all_info.plot_info.x_label || "bmi";
+  let xVar = title(all_info.plot_info.x_label);
+  let xLabel = title(xVar);
+  // Append the appropriate unit if the xVar is "height", "weight", or "bmi"
+  if (["height", "weight", "bmi"].includes(xVar.toLowerCase())) {
+      if (xVar.toLowerCase() === "height") {
+          xLabel += " (cm)"; // assuming height is measured in centimeters
+      } else if (xVar.toLowerCase() === "weight") {
+          xLabel += " (kg)"; // assuming weight is in kilograms
+      } else if (xVar.toLowerCase() === "bmi") {
+          xLabel = xLabel.toUpperCase(); // BMI is usually in uppercase
+          xLabel += " (kg/m²)"; // standard unit for BMI
+      }
+  }
+
+
   const isSingleDisease = !!all_info.filter_info.disease;
 
   const legend = all_info.plot_info.legendContainer;
@@ -153,7 +171,7 @@ export function drawDistributionPlotChart(all_info) {
     .attr("y", height + margin.bottom - 10)
     .attr("text-anchor", "end")
     .style("font-size", "24px")
-    .text(xAttr);
+    .text(xLabel);
 
   g.append("text")
     .attr("transform", "rotate(-90)")

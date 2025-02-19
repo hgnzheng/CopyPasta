@@ -333,11 +333,6 @@ export function drawScatterPlotChart(all_info) {
                 .attr("style", `--color:${colorScale(disease)}`)
                 .html(`<span class="swatch"></span> ${disease} <em>(${countVal})</em>`)
                 .datum(disease)
-                .on("click", function() {
-                    // Unset disease filter on click and redraw
-                    all_info.filter_info.disease = null;
-                    drawScatterPlotChart(all_info);
-                })
                 // ADDED: highlight on hover
                 .on("mouseover", function(event, hoveredDisease) {
                     // Fade out circles that do NOT match hoveredDisease
@@ -362,7 +357,7 @@ export function drawScatterPlotChart(all_info) {
             const color = group === "other" ? "#a9a9a9" : colorScale(group);
             const label = group === "other" ? "Other Diseases" : group;
 
-            legend.append("li")
+            let li = legend.append("li")
                 .attr("style", `--color:${color}`)
                 .html(`<span class="swatch"></span> ${label} <em>(${countVal})</em>`)
                 .datum(group)
@@ -387,6 +382,10 @@ export function drawScatterPlotChart(all_info) {
                         .transition().duration(100)
                         .style("opacity", 1);
                 });
+
+            if (group === "other") {
+                li.attr("class", "other");
+            }
         });
     }
 }

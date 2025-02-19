@@ -4,7 +4,10 @@ import { title } from "../global.js"
 /**
  * Draws a scatter plot with two modes:
  * 1) Disease selected => standard row-level scatter by dx.
- * 2) No disease selected => aggregated by department (average x/y).
+ * 2) No disease selected => display all data points:
+ *    - The top 5 most frequent diseases are in color
+ *    - All other diseases are in grey with some transparency
+ *    - The top 5 colored circles are drawn on top
  */
 export function drawScatterPlotChart(all_info) {
     const svg = all_info.plot_info.plotContainer;
@@ -14,6 +17,9 @@ export function drawScatterPlotChart(all_info) {
     const margin = { top: 20, right: 30, bottom: 50, left: 60 };
     const width  = svgWidth  - margin.left - margin.right;
     const height = svgHeight - margin.top  - margin.bottom;
+
+    // Clear previous content (if re-drawing)
+    svg.selectAll("*").remove();
 
     const g = svg.append("g")
         .attr("transform", `translate(${margin.left},${margin.top})`);
@@ -25,7 +31,7 @@ export function drawScatterPlotChart(all_info) {
         return;
     }
 
-    // Decide which data to use:
+    // Decide which data to use
     let data = all_info.filter_info.disease
         ? all_info.plot_info.filteredData
         : all_info.plot_info.filteredAllData;
@@ -41,88 +47,104 @@ export function drawScatterPlotChart(all_info) {
     let legendValues;
     let colorScale;
 
-    // If a disease is selected => row-level scatter
+    // ==============================
+    // Mode 1: A disease is selected
+    // ==============================
     if (all_info.filter_info.disease) {
-        displayData = data;  // row-level
-        // Unique diseases
+        // Row-level scatter
+        displayData = data;
+
+        // Get unique diseases from the filtered data
         const diseases = Array.from(new Set(displayData.map(d => d.dx))).sort();
+
+        // Create a color scale for the diseases
         colorScale = d3.scaleOrdinal(d3.schemeCategory10).domain(diseases);
         legendValues = diseases;
-    } else {
-        // No disease => aggregated by department
-        const grouped = d3.groups(data, d => d.department)
-            .map(([dept, rows]) => {
-                const avgX = d3.mean(rows, r => +r[xVar]);
-                const avgY = d3.mean(rows, r => +r[yVar]);
-                return {
-                    department: dept,
-                    xVal: avgX,
-                    yVal: avgY,
-                    count: rows.length
-                };
-            })
-            .sort((a, b) => a.department.localeCompare(b.department));
 
-        displayData = grouped;
-        const departments = displayData.map(d => d.department);
-        colorScale = d3.scaleOrdinal(d3.schemeCategory10).domain(departments);
-        legendValues = departments;
+    // ==================================
+    // Mode 2: No disease is selected
+    // ==================================
+    } else {
+        // Show all datapoints, highlight top 5 diseases, and group others as "other"
+
+        // Count the frequencies for each disease (dx)
+        const freqMap = d3.rollup(data, v => v.length, d => d.dx);
+
+        // Sort diseases by frequency (highest first)
+        const sortedDiseases = Array.from(freqMap.entries())
+            .sort((a, b) => b[1] - a[1])  // descending order by count
+            .map(entry => entry[0]);      // extract disease name
+
+        // Get the top 5 diseases
+        const topDiseases = sortedDiseases.slice(0, 5);
+
+        // For each datapoint, assign a new property diseaseGroup
+        displayData = data.map(d => ({
+            ...d,
+            diseaseGroup: topDiseases.includes(d.dx) ? d.dx : "other"
+        }));
+
+        // Create a color scale only for the top diseases
+        colorScale = d3.scaleOrdinal()
+            .domain(topDiseases)
+            .range(d3.schemeCategory10);
+
+        // Prepare legend values: top diseases plus "other" if there is any leftover
+        legendValues = [...topDiseases];
+        if (data.some(d => !topDiseases.includes(d.dx))) {
+            legendValues.push("other");
+        }
     }
 
-    // Build scales
-    const xExtent = d3.extent(displayData, d =>
-        all_info.filter_info.disease ? +d[xVar] : +d.xVal
-    );
-    const yExtent = d3.extent(displayData, d =>
-        all_info.filter_info.disease ? +d[yVar] : +d.yVal
-    );
+    // Build x and y scales from the final displayData
+    const xExtent = d3.extent(displayData, d => +d[xVar]);
+    const yExtent = d3.extent(displayData, d => +d[yVar]);
 
     const xScale = d3.scaleLinear().domain(xExtent).range([0, width]).nice();
     const yScale = d3.scaleLinear().domain(yExtent).range([height, 0]).nice();
 
-    // Axes with increased font sizes
+    // =========================
+    // Draw axes with bigger text
+    // =========================
     const xAxis = g.append("g")
         .attr("transform", `translate(0,${height})`)
         .call(d3.axisBottom(xScale));
-    // Increase tick font size
     xAxis.selectAll("text").style("font-size", "20px");
 
     const yAxis = g.append("g")
         .call(d3.axisLeft(yScale));
-    // Increase tick font size
     yAxis.selectAll("text").style("font-size", "20px");
 
-    // Axis labels with larger font sizes
+    // =========================
+    // Axis labels with units
+    // =========================
     let xLabel = title(xVar);
-    // Append the appropriate unit if the xVar is "height", "weight", or "bmi"
     if (["height", "weight", "bmi"].includes(xVar.toLowerCase())) {
         if (xVar.toLowerCase() === "height") {
-            xLabel += " (cm)"; // assuming height is measured in centimeters
+            xLabel += " (cm)";
         } else if (xVar.toLowerCase() === "weight") {
-            xLabel += " (kg)"; // assuming weight is in kilograms
+            xLabel += " (kg)";
         } else if (xVar.toLowerCase() === "bmi") {
-            xLabel = xLabel.toUpperCase(); // BMI is usually in uppercase
-            xLabel += " (kg/m²)"; // standard unit for BMI
+            xLabel = xLabel.toUpperCase() + " (kg/m²)";
         }
     }
-    // Axis labels with larger font sizes
     let yLabel = title(yVar);
-    // Append the appropriate unit if the xVar is "height", "weight", or "bmi"
     if (["height", "weight", "bmi"].includes(yVar.toLowerCase())) {
         if (yVar.toLowerCase() === "height") {
-            yLabel += " (cm)"; // assuming height is measured in centimeters
+            yLabel += " (cm)";
         } else if (yVar.toLowerCase() === "weight") {
-            yLabel += " (kg)"; // assuming weight is in kilograms
+            yLabel += " (kg)";
         } else if (yVar.toLowerCase() === "bmi") {
-            yLabel = yLabel.toUpperCase(); // BMI is usually in uppercase
-            yLabel += " (kg/m²)"; // standard unit for BMI
+            yLabel = yLabel.toUpperCase() + " (kg/m²)";
         }
     }
+
+    // Draw axis labels
     g.append("text")
         .attr("x", width)
         .attr("y", height + margin.bottom - 10)
         .attr("text-anchor", "end")
-        .style("font-size", "24px")   // Increased from 16px
+        .style("font-size", "24px")
         .text(xLabel);
 
     g.append("text")
@@ -130,10 +152,12 @@ export function drawScatterPlotChart(all_info) {
         .attr("y", -margin.left + 15)
         .attr("x", -margin.top)
         .attr("text-anchor", "end")
-        .style("font-size", "24px")   // Increased from 16px
+        .style("font-size", "24px")
         .text(yLabel);
 
-    // Tooltip
+    // =========================
+    // Tooltip creation
+    // =========================
     let tooltip = d3.select("body").select(".tooltip");
     if (tooltip.empty()) {
         tooltip = d3.select("body").append("div")
@@ -148,33 +172,31 @@ export function drawScatterPlotChart(all_info) {
             .style("display", "none");
     }
 
-    // Circle radius: bigger if no disease is selected
-    const circleRadius = all_info.filter_info.disease ? 6 : 12;
+    // Circle radius
+    const circleRadius = 6;
 
-    // Draw the points
-    g.selectAll(".point")
-        .data(displayData)
-        .enter()
-        .append("circle")
-        .attr("class", "point")
-        .attr("cx", d =>
-            all_info.filter_info.disease ? xScale(+d[xVar]) : xScale(+d.xVal)
-        )
-        .attr("cy", d =>
-            all_info.filter_info.disease ? yScale(+d[yVar]) : yScale(+d.yVal)
-        )
-        .attr("r", circleRadius)
-        .attr("fill", d => {
-            if (all_info.filter_info.disease) {
-                return colorScale(d.dx);
-            } else {
-                return colorScale(d.department);
-            }
-        })
-        .on("mouseover", function(event, d) {
-            tooltip.style("display", "block");
-            if (all_info.filter_info.disease) {
-                // Disease-based tooltip
+    // =========================
+    // Draw circles
+    // =========================
+    if (!all_info.filter_info.disease) {
+        // --- No disease selected ---
+        // We'll separate the "other" group from the top diseases so we can
+        // draw "other" first (with transparency) and then the top diseases on top.
+
+        // 1) "Other" points
+        const otherPoints = displayData.filter(d => d.diseaseGroup === "other");
+        g.selectAll(".point-other")
+            .data(otherPoints)
+            .enter()
+            .append("circle")
+            .attr("class", "point-other")
+            .attr("cx", d => xScale(+d[xVar]))
+            .attr("cy", d => yScale(+d[yVar]))
+            .attr("r", circleRadius)
+            .attr("fill", "#a9a9a9")  // grey color
+            .attr("opacity", 0.4)     // some transparency
+            .on("mouseover", function(event, d) {
+                tooltip.style("display", "block");
                 tooltip.html(`
                     <strong>Disease:</strong> ${d.dx}<br>
                     <strong>${xVar}:</strong> ${d[xVar]}<br>
@@ -184,26 +206,86 @@ export function drawScatterPlotChart(all_info) {
                     <strong>BMI:</strong> ${d.bmi}<br>
                     <strong>Death Rate:</strong> ${d.death_inhosp}
                 `);
-            } else {
-                // Department-based tooltip
-                tooltip.html(`
-                    <strong>Department:</strong> ${d.department}<br>
-                    <strong>Average ${xVar}:</strong> ${d.xVal.toFixed(2)}<br>
-                    <strong>Average ${yVar}:</strong> ${d.yVal.toFixed(2)}<br>
-                    <strong>Count:</strong> ${d.count}
-                `);
-            }
-        })
-        .on("mousemove", function(event) {
-            tooltip
-                .style("left", (event.pageX + 10) + "px")
-                .style("top", (event.pageY - 28) + "px");
-        })
-        .on("mouseout", function() {
-            tooltip.style("display", "none");
-        });
+            })
+            .on("mousemove", function(event) {
+                tooltip
+                    .style("left", (event.pageX + 10) + "px")
+                    .style("top", (event.pageY - 28) + "px");
+            })
+            .on("mouseout", function() {
+                tooltip.style("display", "none");
+            });
 
-    // Optionally plot the user input as a star
+        // 2) Top diseases
+        const topPoints = displayData.filter(d => d.diseaseGroup !== "other");
+        g.selectAll(".point-top")
+            .data(topPoints)
+            .enter()
+            .append("circle")
+            .attr("class", "point-top")
+            .attr("cx", d => xScale(+d[xVar]))
+            .attr("cy", d => yScale(+d[yVar]))
+            .attr("r", circleRadius)
+            .attr("fill", d => colorScale(d.diseaseGroup))
+            .attr("opacity", 1.0)
+            .on("mouseover", function(event, d) {
+                tooltip.style("display", "block");
+                tooltip.html(`
+                    <strong>Disease:</strong> ${d.dx}<br>
+                    <strong>${xVar}:</strong> ${d[xVar]}<br>
+                    <strong>${yVar}:</strong> ${d[yVar]}<br>
+                    <strong>Age:</strong> ${d.age}<br>
+                    <strong>Sex:</strong> ${d.sex}<br>
+                    <strong>BMI:</strong> ${d.bmi}<br>
+                    <strong>Death Rate:</strong> ${d.death_inhosp}
+                `);
+            })
+            .on("mousemove", function(event) {
+                tooltip
+                    .style("left", (event.pageX + 10) + "px")
+                    .style("top", (event.pageY - 28) + "px");
+            })
+            .on("mouseout", function() {
+                tooltip.style("display", "none");
+            });
+
+    } else {
+        // --- A disease is selected ---
+        // Just draw all points in one pass, color by dx
+        g.selectAll(".point")
+            .data(displayData)
+            .enter()
+            .append("circle")
+            .attr("class", "point")
+            .attr("cx", d => xScale(+d[xVar]))
+            .attr("cy", d => yScale(+d[yVar]))
+            .attr("r", circleRadius)
+            .attr("fill", d => colorScale(d.dx))
+            .on("mouseover", function(event, d) {
+                tooltip.style("display", "block");
+                tooltip.html(`
+                    <strong>Disease:</strong> ${d.dx}<br>
+                    <strong>${xVar}:</strong> ${d[xVar]}<br>
+                    <strong>${yVar}:</strong> ${d[yVar]}<br>
+                    <strong>Age:</strong> ${d.age}<br>
+                    <strong>Sex:</strong> ${d.sex}<br>
+                    <strong>BMI:</strong> ${d.bmi}<br>
+                    <strong>Death Rate:</strong> ${d.death_inhosp}
+                `);
+            })
+            .on("mousemove", function(event) {
+                tooltip
+                    .style("left", (event.pageX + 10) + "px")
+                    .style("top", (event.pageY - 28) + "px");
+            })
+            .on("mouseout", function() {
+                tooltip.style("display", "none");
+            });
+    }
+
+    // =========================
+    // Optionally plot user input as a star
+    // =========================
     const input_x = all_info.plot_info.input_x;
     const input_y = all_info.plot_info.input_y;
     if (typeof input_x === "number" && typeof input_y === "number") {
@@ -219,12 +301,20 @@ export function drawScatterPlotChart(all_info) {
             .text("Your Input");
     }
 
-    // Legend and Summary Statistics
+    // =========================
+    // Legend and Summary Stats
+    // =========================
     const legend = all_info.plot_info.legendContainer;
     legend.selectAll("*").remove();
 
+    // We'll create a map from group (or dx) to the number of datapoints
+    // This helps us display counts in the legend
     if (all_info.filter_info.disease) {
-        // Calculate the count, average, min, and max for x and y variables.
+        // A disease is selected => might have multiple dx in the filtered data
+        // Build a rollup to count how many rows each disease has
+        const diseaseCounts = d3.rollup(displayData, v => v.length, d => d.dx);
+
+        // Summaries
         const count = data.length;
         const avgX = d3.mean(data, d => +d[xVar]);
         const avgY = d3.mean(data, d => +d[yVar]);
@@ -233,7 +323,6 @@ export function drawScatterPlotChart(all_info) {
         const minY = d3.min(data, d => +d[yVar]);
         const maxY = d3.max(data, d => +d[yVar]);
 
-        // Display each piece of information on a new line
         all_info.plot_info.commentContainer.html(`
             <strong>Disease:</strong> ${all_info.filter_info.disease}<br>
             <strong>Count:</strong> ${count}<br>
@@ -241,32 +330,40 @@ export function drawScatterPlotChart(all_info) {
             <strong>${yVar}:</strong> avg ${avgY.toFixed(2)} (min ${minY}, max ${maxY})
         `);
 
-        // Build legend items for each disease
+        // Legend for each disease in the data
         legendValues.forEach(disease => {
+            const countVal = diseaseCounts.get(disease) || 0;
             legend.append("li")
                 .attr("style", `--color:${colorScale(disease)}`)
-                .html(`<span class="swatch"></span> ${disease}`)
+                .html(`<span class="swatch"></span> ${disease} (${countVal})`)
                 .datum(disease)
                 .on("click", function() {
-                    // Unset disease filter on click
+                    // Unset disease filter on click and redraw
                     all_info.filter_info.disease = null;
-                    // Reapply disease filtering and redraw the chart
                     drawScatterPlotChart(all_info);
                 });
         });
     } else {
-        // No disease selected => aggregated view
+        // No disease => top 5 + "other"
+        // Count how many data points in each group
+        const groupCounts = d3.rollup(displayData, v => v.length, d => d.diseaseGroup);
+
+        // Clear any summary text
         all_info.plot_info.commentContainer.text("");
-        
-        // Build legend items for each department
-        legendValues.forEach(dept => {
+
+        // Legend for top diseases + "other"
+        legendValues.forEach(group => {
+            const countVal = groupCounts.get(group) || 0;
+            const color = group === "other" ? "#a9a9a9" : colorScale(group);
+            const label = group === "other" ? "Other Diseases" : group;
+
             legend.append("li")
-                .attr("style", `--color:${colorScale(dept)}`)
-                .html(`<span class="swatch"></span> ${dept}`)
-                .datum(dept)
+                .attr("style", `--color:${color}`)
+                .html(`<span class="swatch"></span> ${label} (${countVal})`)
+                .datum(group)
                 .on("click", function() {
-                    // For example, you could set the department filter or log the selection
-                    console.log("Clicked department:", dept);
+                    // You can add a filter or highlight action here if desired
+                    console.log("Clicked disease group:", group);
                 });
         });
     }

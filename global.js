@@ -46,6 +46,7 @@ function loadData(){
         y_label: null,
         plotContainer: d3.select("svg"),
         legendContainer: d3.select(".legend"),
+        legendLabel: d3.select(".legend-label"),
         commentContainer: d3.select(".comment")
     }
     let filter_info = {
@@ -351,9 +352,15 @@ function filterAxis(all_info) {
         });
 
     all_info.other_info.axisList.forEach(function(axis) {
-        xSelect.append("option")
+        if (axis !== "bmi") {
+            xSelect.append("option")
             .attr("value", axis)
             .text(title(axis));
+        } else {
+            xSelect.append("option")
+            .attr("value", axis)
+            .text(axis.toUpperCase());
+        }
     });
 
     all_info.plot_info.x_label = all_info.other_info.axisList[0];
@@ -369,9 +376,15 @@ function filterAxis(all_info) {
         });
 
     all_info.other_info.axisList.forEach(function(axis) {
-        ySelect.append("option")
+        if (axis !== "bmi") {
+            ySelect.append("option")
             .attr("value", axis)
             .text(title(axis));
+        } else {
+            ySelect.append("option")
+            .attr("value", axis)
+            .text(axis.toUpperCase());
+        }
     });
 
     all_info.plot_info.y_label = all_info.other_info.axisList[0];
@@ -641,6 +654,7 @@ function draw(all_info){
     all_info.plot_info.plotContainer.selectAll("*").remove();
     all_info.plot_info.legendContainer.selectAll("*").remove();
     all_info.plot_info.commentContainer.selectAll("*").remove();
+    all_info.plot_info.legendLabel.text("Top 5 Diseases:");
 
     if (all_info.filter_info.department.length === 0 || all_info.filter_info.sex.length === 0) {
         d3.select(".legend-comment").style("display", "none");
@@ -710,7 +724,7 @@ document.addEventListener("click", function(event) {
     }
 });
 
-function selectDiseaseViaPlot(all_info, diseaseName) {
+export function selectDiseaseViaPlot(all_info, diseaseName) {
     all_info.filter_info.disease = diseaseName;
     filterDiseases(all_info);
     updateFilterButton(all_info);

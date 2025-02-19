@@ -4,13 +4,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" type="text/css" href="../style.css">
-    <title>Project 3 Writeup</title>
+    <title>Surgical Outcomes Visualization Project</title>
 </head>
-    <h1>Project 3 Writeup</h1>
-    <div class="writeup">
-        <p> </p>
-    </div>
 <body>
-    
+    <h1>Project 3: Surgical Outcomes Visualization</h1>
+    <div class="writeup">
+        <p>
+            <strong>Motivation and Purpose</strong><br>
+            Our interactive visualization system addresses a critical need in healthcare analytics: understanding the relationships between patient characteristics and surgical outcomes. Designed for hospital administrators, clinicians, and healthcare researchers, this tool enables comprehensive analysis of how physical variables correlate with disease occurrences and mortality rates. The system facilitates evidence-based resource allocation, identification of at-risk populations, and development of targeted research initiatives. Additionally, it serves data analysts and policymakers in monitoring healthcare disparities and evaluating departmental performance metrics.
+        </p>
+        <p>
+            <strong>Visualization System Overview</strong><br>
+            The application implements a single-page design utilizing D3.js, featuring four coordinated visualization components driven by a unified global filtering system. Users can filter by department, sex, and disease to dynamically update the following views: Distribution, Death Rate, Physical Condition, and Departmental Analysis. The Distribution View employs stacked density visualization to illustrate disease frequency across binned numeric variables. The Death Rate View presents mortality trends across age, height, weight, or BMI, highlighting the five diseases with highest mortality rates when no specific disease is selected. The Physical Condition View provides a dual-mode scatter plot, either focusing on a single disease or color-coding multiple high-priority diseases. The Departmental Analysis View utilizes a pie chart to demonstrate disease distribution across departments, with optional sex-based stratification. Interactive tooltips provide detailed contextual information throughout the interface.
+        </p>
+        <p>
+            <strong>Design Methodology</strong><br>
+            Our visualization selection prioritizes medical context requirements and analytical clarity. The Distribution View's stacked density representation facilitates multi-disease comparison across continuous variables. The Death Rate View implements binned line charts to reveal mortality patterns across patient characteristics, enabling efficient identification of high-risk demographic segments. The Physical Condition scatter plot illuminates variable relationships and disease clustering patterns, while the Departmental Analysis chart provides immediate insight into caseload distribution. We maintained consistent color coding across views to support rapid pattern recognition and implemented intuitive selection mechanisms to streamline the exploratory analysis process.
+        </p>
+        <p>
+            <strong>Technical Implementation</strong><br>
+            The application architecture centers on <em>global.js</em>, which manages data operations and state synchronization. The Distribution View (<em>distribution_plot.js</em>) implements binned data organization and stacked visualization algorithms. The Death Rate View (<em>death_rate_plot.js</em>) employs decile-based binning for mortality rate analysis. The Physical Condition View (<em>scatter_plot.js</em>) features dual visualization modes: individual case analysis and multi-disease comparison. The Departmental Analysis component (<em>pie_plot.js</em>) supports both single and multi-department visualization scenarios. Each component incorporates interactive elements including guidelines, selection indicators, and contextual tooltips to enhance data exploration capabilities.
+        </p>
+        <p>
+            <strong>Data Preprocessing Methodology</strong><br>
+            The preprocessing pipeline included diagnosis standardization, low-frequency case filtering (threshold: n < 10), and numeric attribute normalization. These steps ensure statistical reliability and visualization accuracy while maintaining data integrity throughout the analysis process.
+        </p>
+        <p>
+            <strong>Development Process</strong><br>
+            Development proceeded through structured GitHub collaboration, utilizing pull requests and issue tracking for version control and quality assurance. Team contributions were distributed as follows: Kaijie Zhang and Rihui Ling implemented the core framework and primary visualization components; Hargen Zheng developed the advanced filtering system and dual-mode scatter plot functionality; Minghan Wu executed data preprocessing operations and performance optimization protocols. The development cycle comprised approximately 75 person-hours, with significant emphasis on interaction design and system responsiveness.
+        </p>
+        <p>
+            <strong>Applications and Future Developments</strong><br>
+            This visualization system provides actionable insights for healthcare stakeholders across multiple domains. Hospital administrators can leverage the tool for resource optimization and risk management. Clinicians can identify patient characteristic patterns that may influence surgical outcomes. Researchers can utilize the system for hypothesis generation and refinement in clinical studies. Future development plans include implementation of multi-factor query capabilities and enhanced binning algorithms to accommodate edge cases while maintaining system accessibility and analytical power.
+        </p>
+    </div>
 </body>
 </html>

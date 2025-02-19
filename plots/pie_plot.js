@@ -163,7 +163,9 @@ export function drawPiePlotChart(all_info) {
   const ratioText = total ? ((sumSelected * 100) / total).toFixed(1) + "%" : "N/A";
   const joinedDept = deptList.join(", ");
   comment.html(`
-    <b>${dxName}</b> in department(s) [${joinedDept}]
-    accounts for ${ratioText} of ${total} patients.
+    <b>${dxName}</b> in department(s) [<strong>${joinedDept}</strong>]
+    accounts for <strong>${ratioText}</strong> of <strong>${total}</strong>
+    patients. It contains <strong>${selectedMale}</strong> male and
+    <strong>${selectedFemale}</strong> female.
   `);
 }

@@ -158,12 +158,12 @@ export function drawDistributionPlotChart(all_info) {
     .attr("d", areaGen);
 
   const xAxis = g.append("g")
-    .attr("transform", `translate(0,${height})`)
+    .attr("transform", `translate(20,${height})`)
     .call(d3.axisBottom(xScale).tickFormat(shortBinLabel));
   xAxis.selectAll("text").style("font-size", "20px");
 
   const yAxis = g.append("g")
-    .attr("transform", "translate(10,0)") 
+    .attr("transform", "translate(20,0)") 
     .call(d3.axisLeft(yScale));
   yAxis.selectAll("text").style("font-size", "20px");
 
@@ -176,7 +176,7 @@ export function drawDistributionPlotChart(all_info) {
 
   g.append("text")
     .attr("transform", "rotate(-90)")
-    .attr("y", -margin.left + 16)
+    .attr("y", -margin.left + 19)
     .attr("x", -margin.top + 70)
     .attr("text-anchor", "end")
     .style("font-size", "24px")

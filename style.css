@@ -303,16 +303,16 @@ em {
     transform: translate(-50%, -50%);
 }
 
-.writeup {
+.writeup-link {
     margin-top: 10px;
 }
 
-.writeup a {
+.writeup-link a {
     color: var(--color-accent); /* Use accent color for links */
     text-decoration: none; /* Remove underline */
 }
 
-.writeup a:hover {
+.writeup-link a:hover {
     text-decoration: underline; /* Add underline on hover */
 }
 
